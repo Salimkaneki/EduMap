@@ -61,7 +61,7 @@ const Header = () => {
           <Link href="/about" className="hidden md:inline-block text-gray-700 hover:text-gray-900 font-medium">
             À propos
           </Link>
-          <Link href="/recherche" className="hidden md:inline-block text-gray-700 hover:text-gray-900 font-medium">
+          <Link href="/map" className="hidden md:inline-block text-gray-700 hover:text-gray-900 font-medium">
             Établissements
           </Link>
           
