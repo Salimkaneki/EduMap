@@ -2,7 +2,7 @@
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import Image from 'next/image';
+// import Image from 'next/image';
 
 const AboutPage = () => {
   return (
@@ -12,9 +12,9 @@ const AboutPage = () => {
       {/* Hero Section - Enhanced with more engaging gradient */}
       <div className="bg-gradient-to-r from-blue-50 via-gray-100 to-blue-50 py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">À propos d'EduMap</h1>
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">À propos d&apos;EduMap</h1>
           <p className="text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
-            Cartographier l'avenir de l'éducation pour un accès équitable aux infrastructures scolaires
+            Cartographier l&apos;avenir de l&apos;éducation pour un accès équitable aux infrastructures scolaires
           </p>
         </div>
       </div>
@@ -31,7 +31,7 @@ const AboutPage = () => {
               Notre mission
             </h2>
             <p className="text-lg text-gray-700 mb-6 leading-relaxed">
-              EduMap est née d'une vision simple mais puissante : rendre visible l'invisible dans le paysage éducatif. 
+              EduMap est née d&apos;une vision simple mais puissante : rendre visible l&apos;invisible dans le paysage éducatif. 
               Notre plateforme cartographie minutieusement les établissements scolaires et leurs infrastructures pour 
               créer un système éducatif plus équitable et transparent.
             </p>
@@ -40,7 +40,7 @@ const AboutPage = () => {
                 <svg className="h-6 w-6 text-green-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                 </svg>
-                <span className="text-lg">Permettre aux décideurs d'identifier les priorités d'investissement en matière d'infrastructures éducatives</span>
+                <span className="text-lg">Permettre aux décideurs d&apos;identifier les priorités d&apos;investissement en matière d&apos;infrastructures éducatives</span>
               </li>
               <li className="flex items-start">
                 <svg className="h-6 w-6 text-green-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -52,7 +52,7 @@ const AboutPage = () => {
                 <svg className="h-6 w-6 text-green-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                 </svg>
-                <span className="text-lg">Favoriser l'équité éducative en identifiant et en mettant en lumière les disparités d'accès aux ressources</span>
+                <span className="text-lg">Favoriser l&apos;équité éducative en identifiant et en mettant en lumière les disparités d&apos;accès aux ressources</span>
               </li>
             </ul>
           </div>
@@ -102,7 +102,7 @@ const AboutPage = () => {
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">Recherche avancée</h3>
                 <p className="text-gray-600 leading-relaxed">
                   Trouvez rapidement des établissements selon de multiples critères: localisation, 
-                  type d'école, infrastructures disponibles et services offerts.
+                  type d&apos;école, infrastructures disponibles et services offerts.
                 </p>
               </div>
             </div>
@@ -118,7 +118,7 @@ const AboutPage = () => {
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">Carte interactive</h3>
                 <p className="text-gray-600 leading-relaxed">
                   Visualisez géographiquement la distribution des établissements scolaires
-                  et explorez leurs caractéristiques directement depuis l'interface cartographique.
+                  et explorez leurs caractéristiques directement depuis l&apos;interface cartographique.
                 </p>
               </div>
             </div>
@@ -133,8 +133,8 @@ const AboutPage = () => {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">Filtrage précis</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Identifiez facilement les écoles disposant d'infrastructures spécifiques comme
-                  l'accès à l'eau potable, l'électricité, l'internet ou des installations sportives.
+                  Identifiez facilement les écoles disposant d&apos;infrastructures spécifiques comme
+                  l&apos;accès à l&apos;eau potable, l&apos;électricité, l&apos;internet ou des installations sportives.
                 </p>
               </div>
             </div>
@@ -149,7 +149,7 @@ const AboutPage = () => {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">Fiches détaillées</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Consultez l'ensemble des informations de chaque établissement dans une 
+                  Consultez l&apos;ensemble des informations de chaque établissement dans une 
                   interface claire, organisée et adaptée aux différents appareils.
                 </p>
               </div>
@@ -185,7 +185,7 @@ const AboutPage = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                     </svg>
                   </div>
-                  <span className="text-gray-700">Identifier les zones prioritaires pour l'amélioration des infrastructures</span>
+                  <span className="text-gray-700">Identifier les zones prioritaires pour l&apos;amélioration des infrastructures</span>
                 </li>
                 <li className="flex items-start">
                   <div className="bg-white p-1 rounded-full mr-3 mt-1">
@@ -201,7 +201,7 @@ const AboutPage = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                     </svg>
                   </div>
-                  <span className="text-gray-700">Sensibiliser sur l'importance d'infrastructures éducatives adéquates</span>
+                  <span className="text-gray-700">Sensibiliser sur l&apos;importance d&apos;infrastructures éducatives adéquates</span>
                 </li>
               </ul>
             </div>
@@ -214,7 +214,7 @@ const AboutPage = () => {
               </h2>
               <p className="text-lg text-gray-700 mb-6 leading-relaxed">
                 Nous aspirons à créer un avenir où chaque élève a accès à un environnement 
-                d'apprentissage bien équipé, quel que soit son lieu de résidence.
+                d&apos;apprentissage bien équipé, quel que soit son lieu de résidence.
               </p>
               <p className="text-lg text-gray-700 mb-6 leading-relaxed">
                 Notre vision pour les prochaines années:
@@ -234,7 +234,7 @@ const AboutPage = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                     </svg>
                   </div>
-                  <span className="text-gray-700">Développer des indicateurs avancés d'équité éducative</span>
+                  <span className="text-gray-700">Développer des indicateurs avancés d&apos;équité éducative</span>
                 </li>
                 <li className="flex items-start">
                   <div className="bg-white p-1 rounded-full mr-3 mt-1">
@@ -252,10 +252,10 @@ const AboutPage = () => {
         {/* Enhanced Call to Action Section */}
         <section className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl shadow-2xl overflow-hidden">
           <div className="p-10 md:p-16 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Participez à l'avenir de l'éducation</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Participez à l&apos;avenir de l&apos;éducation</h2>
             <p className="text-blue-100 text-lg md:text-xl mb-10 max-w-3xl mx-auto leading-relaxed">
-              Vous souhaitez contribuer à notre mission d'amélioration des infrastructures éducatives?
-              Contactez-nous pour explorer les possibilités de collaboration et d'engagement.
+              Vous souhaitez contribuer à notre mission d&apos;amélioration des infrastructures éducatives?
+              Contactez-nous pour explorer les possibilités de collaboration et d&apos;engagement.
             </p>
             <button className="px-10 py-4 bg-white text-indigo-700 font-semibold text-lg rounded-full hover:bg-gray-50 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-transform">
               Contactez-nous

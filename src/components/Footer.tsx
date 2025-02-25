@@ -12,7 +12,7 @@ const Footer = () => {
           <div className="col-span-1 md:col-span-1">
             <h2 className="text-lg font-bold text-gray-900 mb-4">ÉduGuide</h2>
             <p className="text-gray-600 text-sm mb-4">
-              Votre guide complet pour trouver l'établissement éducatif qui répond parfaitement à vos besoins.
+              Votre guide complet pour trouver l&apos;établissement éducatif qui répond parfaitement à vos besoins.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-500 hover:text-gray-900">
@@ -54,7 +54,7 @@ const Footer = () => {
               </li>
               <li>
                 <a href="#" className="text-base text-gray-600 hover:text-gray-900">
-                  Comparateur d'écoles
+                  Comparateur d&apos;écoles
                 </a>
               </li>
             </ul>
@@ -124,7 +124,7 @@ const Footer = () => {
           </div>
           <div className="mt-4 md:mt-0 flex flex-wrap">
             <a href="#" className="text-sm text-gray-500 hover:text-gray-900 mr-6">
-              Conditions d'utilisation
+              Conditions d&apos;utilisation
             </a>
             <a href="#" className="text-sm text-gray-500 hover:text-gray-900 mr-6">
               Politique de confidentialité

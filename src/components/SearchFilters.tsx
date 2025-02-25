@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 interface Prefecture {
   id: string;
@@ -8,8 +8,23 @@ interface Prefecture {
   region: string;
 }
 
+interface InfrastructureFilters {
+  withElectricity: boolean;
+  withWater: boolean;
+  withLatrine: boolean;
+  allSeasonAccess: boolean;
+}
+
+// Définir une interface pour les filtres de recherche
+interface SearchFiltersState extends InfrastructureFilters {
+  searchTerm: string;
+  region: string;
+  prefecture: string;
+  type: string;
+}
+
 interface SearchFiltersProps {
-  onSearch: (filters: any) => void;
+  onSearch: (filters: SearchFiltersState) => void;
   regions: string[];
   prefectures: Prefecture[];
   types: string[];
@@ -25,7 +40,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
   const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedPrefecture, setSelectedPrefecture] = useState('');
   const [selectedType, setSelectedType] = useState('');
-  const [infrastructureFilters, setInfrastructureFilters] = useState({
+  const [infrastructureFilters, setInfrastructureFilters] = useState<InfrastructureFilters>({
     withElectricity: false,
     withWater: false,
     withLatrine: false,
@@ -38,20 +53,15 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
     : prefectures;
   
   // Gérer les changements de filtres d'infrastructure
-  const handleInfrastructureChange = (filter: string) => {
+  const handleInfrastructureChange = (filter: keyof InfrastructureFilters) => {
     setInfrastructureFilters(prev => ({
       ...prev,
-      [filter]: !prev[filter as keyof typeof prev]
+      [filter]: !prev[filter]
     }));
   };
   
-  // Appliquer les filtres lorsqu'ils changent
-  useEffect(() => {
-    handleSearch();
-  }, [infrastructureFilters, selectedRegion, selectedPrefecture, selectedType]);
-  
-  // Gérer la soumission de la recherche
-  const handleSearch = () => {
+  // Utiliser useCallback pour mémoriser handleSearch et éviter des re-rendus inutiles
+  const handleSearch = useCallback(() => {
     onSearch({
       searchTerm,
       region: selectedRegion,
@@ -59,7 +69,12 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
       type: selectedType,
       ...infrastructureFilters
     });
-  };
+  }, [searchTerm, selectedRegion, selectedPrefecture, selectedType, infrastructureFilters, onSearch]);
+  
+  // Appliquer les filtres lorsqu'ils changent
+  useEffect(() => {
+    handleSearch();
+  }, [handleSearch]); // Maintenant handleSearch est la seule dépendance
   
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -129,7 +144,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Type d'établissement</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Type d&apos;établissement</label>
           <select
             className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-gray-200"
             value={selectedType}
@@ -169,7 +184,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
               onChange={() => handleInfrastructureChange('withWater')}
             />
             <label htmlFor="water" className="ml-2 text-sm text-gray-700">
-              Accès à l'eau
+              Accès à l&apos;eau
             </label>
           </div>
           

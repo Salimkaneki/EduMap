@@ -10,7 +10,7 @@ const HeroSection = () => {
       <div className="max-w-4xl mx-auto">
         {/* Titre principal */}
         <h1 className="text-5xl font-bold text-gray-900 mb-6">
-        Trouvez l'établissement parfait <br /> près de chez vous.
+        Trouvez l&apos;établissement parfait <br /> près de chez vous.
         </h1>
 
         {/* Sous-titre */}

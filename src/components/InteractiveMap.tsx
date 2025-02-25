@@ -4,12 +4,17 @@ import React, { useState, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import type { Establishment } from '@/types';
+import type { Establishment, InteractiveMapProps } from '@/types/types';
+
+interface ExtendedIconDefaultPrototype extends L.Icon.Default {
+  _getIconUrl?: string;
+}
+
 
 // Fix pour les icônes Leaflet dans Next.js
 const fixLeafletIcon = () => {
   if (typeof window !== 'undefined') {
-    delete L.Icon.Default.prototype._getIconUrl;
+    delete ((L.Icon.Default.prototype as ExtendedIconDefaultPrototype)._getIconUrl);
     L.Icon.Default.mergeOptions({
       iconRetinaUrl: '/leaflet/marker-icon-2x.png',
       iconUrl: '/leaflet/marker-icon.png',
@@ -57,16 +62,20 @@ const MapController = ({ center, zoom }: { center: [number, number], zoom: numbe
   return null;
 };
 
-interface InteractiveMapProps {
-  establishments: Establishment[];
-  filters: any;
-}
+// interface InteractiveMapProps {
+//   establishments: Establishment[];
+//   filters: any;
+// }
 
-const InteractiveMap: React.FC<InteractiveMapProps> = ({ establishments, filters }) => {
+const InteractiveMap: React.FC<InteractiveMapProps> = ({ establishments, filters}) => {
   const [mapReady, setMapReady] = useState(false);
   const [selectedEstablishment, setSelectedEstablishment] = useState<Establishment | null>(null);
-  const [mapCenter, setMapCenter] = useState<[number, number]>([8.619543, 0.824782]); // Coordonnées centrales du Togo
-  const [mapZoom, setMapZoom] = useState(7);
+  // const [mapCenter, setMapCenter] = useState<[number, number]>([8.619543, 0.824782]); // Coordonnées centrales du Togo
+  // const [mapZoom, setMapZoom] = useState(7);
+  // const mapRef = useRef(null);
+
+  const mapCenter: [number, number] = [8.619543, 0.824782]; // Coordonnées centrales du Togo
+  const mapZoom = 7;
   const mapRef = useRef(null);
   
   useEffect(() => {
@@ -86,13 +95,13 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({ establishments, filters
   });
   
   // Fonction pour centrer la carte sur un établissement
-  const focusOnEstablishment = (establishment: Establishment) => {
-    if (establishment.LATITUDE && establishment.LONGITUDE) {
-      setMapCenter([establishment.LATITUDE, establishment.LONGITUDE]);
-      setMapZoom(15);
-      setSelectedEstablishment(establishment);
-    }
-  };
+  // const focusOnEstablishment = (establishment: Establishment) => {
+  //   if (establishment.LATITUDE && establishment.LONGITUDE) {
+  //     setMapCenter([establishment.LATITUDE, establishment.LONGITUDE]);
+  //     setMapZoom(15);
+  //     setSelectedEstablishment(establishment);
+  //   }
+  // };
   
   if (!mapReady) {
     return <div className="h-96 bg-gray-100 flex items-center justify-center">Chargement de la carte...</div>;

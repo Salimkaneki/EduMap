@@ -5,7 +5,18 @@ import dynamic from 'next/dynamic';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SearchFilters from '@/components/SearchFilters';
-import { Establishment, Prefecture } from '@/types';
+import { Establishment, Prefecture } from '@/types/types';
+
+interface SearchFilters {
+  searchTerm: string;
+  region: string;
+  prefecture: string;
+  type: string;
+  withElectricity: boolean;
+  withWater: boolean;
+  withLatrine: boolean;
+  allSeasonAccess: boolean;
+}
 
 // Import dynamique du composant de carte pour éviter les problèmes SSR avec Leaflet
 const DynamicMap = dynamic(() => import('@/components/InteractiveMap'), {
@@ -136,9 +147,12 @@ const MapSearchPage = () => {
   }, []);
   
   // Gérer la recherche et le filtrage
-  const handleSearch = (searchFilters: any) => {
+// Gérer la recherche et le filtrage
+  const handleSearch = (searchFilters: SearchFilters) => {
     setFilters(searchFilters);
     setIsLoading(true);
+    
+
     
     // Filtrer les établissements selon les critères de recherche
     const results = establishments.filter(establishment => {

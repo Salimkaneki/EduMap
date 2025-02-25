@@ -2,6 +2,16 @@
 
 import React from 'react';
 
+interface School {
+  id: number;
+  name: string;
+  type: string;
+  location: string;
+  level: string;
+  rating: number;
+  reviews: number;
+}
+
 // Données fictives pour les établissements
 const schoolsData = [
   {
@@ -79,7 +89,7 @@ const schoolsData = [
 ];
 
 // Composant pour une carte d'établissement style Airbnb
-const ModernSchoolCard = ({ school }) => {
+const ModernSchoolCard = ({ school }: { school: School }) => {
   return (
     <div className="group cursor-pointer">
       {/* Placeholder coloré pour l'image */}
