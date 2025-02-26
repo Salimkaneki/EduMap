@@ -5,7 +5,7 @@ import SearchFilters from '@/components/SearchFilters';
 import type { Establishment, SearchFilters as SearchFiltersType } from '@/types/types';
 import { Prefecture } from '@/types/types';
 
-// Import dynamique pour éviter le problème de window not defined
+// Dynamic import to avoid window not defined
 const InteractiveMap = dynamic(() => import('@/components/InteractiveMap'), {
   ssr: false,
   loading: () => (
@@ -16,7 +16,7 @@ const InteractiveMap = dynamic(() => import('@/components/InteractiveMap'), {
 });
 
 export default function SearchPage() {
-  const [filters, setFilters] = useState<SearchFiltersType>({
+  const [appliedFilters, setAppliedFilters] = useState<SearchFiltersType>({
     searchTerm: '',
     region: '',
     prefecture: '',
@@ -27,25 +27,37 @@ export default function SearchPage() {
     allSeasonAccess: false
   });
   
-  // Pour éviter les problèmes de hydration, utilisez un état pour suivre le chargement
+  // For hydration issues, use state to track loading
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Mock data pour les filtres - À remplacer par des vrais données
+  // Mock data for filters - Replace with real data
   const regions = ['Maritime', 'Plateaux', 'Centrale', 'Kara', 'Savanes'];
   const types = ['Public', 'Privé', 'Confessionnel'];
-  const prefectures: Prefecture[] = [];
+  const prefectures: Prefecture[] = [
+    { id: 'golfe', name: 'Golfe', region: 'Maritime' },
+    { id: 'lacs', name: 'Lacs', region: 'Maritime' },
+    { id: 'kloto', name: 'Kloto', region: 'Plateaux' },
+    // Add more prefectures as needed
+  ];
   
-  // Mock data pour les établissements - À remplacer par une API
+  // Mock data for establishments - Replace with API
   const establishments: Establishment[] = [];
+
+  // Apply filters handler
+  const handleApplyFilters = (filters: SearchFiltersType) => {
+    setAppliedFilters(filters);
+    // Here you would typically fetch data based on filters
+    console.log("Filters applied:", filters);
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
       <SearchFilters
-        onSearch={setFilters}
+        onSearch={handleApplyFilters}
         regions={regions}
         prefectures={prefectures}
         types={types}
@@ -54,7 +66,7 @@ export default function SearchPage() {
       {isClient && (
         <InteractiveMap 
           establishments={establishments}
-          filters={filters}
+          filters={appliedFilters}
           isLoading={!isClient}
         />
       )}

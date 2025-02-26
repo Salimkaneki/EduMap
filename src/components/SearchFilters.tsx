@@ -60,8 +60,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
     }));
   };
   
-  // Utiliser useCallback pour mémoriser handleSearch et éviter des re-rendus inutiles
-  const handleSearch = useCallback(() => {
+  // Fonction pour exécuter la recherche quand l'utilisateur la demande
+  const executeSearch = () => {
     onSearch({
       searchTerm,
       region: selectedRegion,
@@ -69,12 +69,12 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
       type: selectedType,
       ...infrastructureFilters
     });
-  }, [searchTerm, selectedRegion, selectedPrefecture, selectedType, infrastructureFilters, onSearch]);
+  };
   
-  // Appliquer les filtres lorsqu'ils changent
-  useEffect(() => {
-    handleSearch();
-  }, [handleSearch]); // Maintenant handleSearch est la seule dépendance
+  // SUPPRIMER LE useEffect qui cause la boucle infinie
+  // useEffect(() => {
+  //   handleSearch();
+  // }, [handleSearch]);
   
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -94,12 +94,12 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
               className="w-full py-4 bg-transparent focus:outline-none text-gray-800"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              onKeyPress={(e) => e.key === 'Enter' && executeSearch()}
             />
           </div>
           <button 
             className="bg-black hover:bg-gray-800 text-white p-4 rounded-full flex items-center justify-center mr-1 transition-colors"
-            onClick={handleSearch}
+            onClick={executeSearch}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="8"></circle>
