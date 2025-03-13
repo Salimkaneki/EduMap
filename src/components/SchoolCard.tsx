@@ -172,7 +172,7 @@ const ModernSchoolsGrid = () => {
         </div>
       </div>
     </div>
-  );
+  );   
 };
 
 export default ModernSchoolsGrid;
