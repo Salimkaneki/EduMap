@@ -146,7 +146,6 @@ const MapSearchPage = () => {
     }, 500);
   }, []);
   
-  // Gérer la recherche et le filtrage
 // Gérer la recherche et le filtrage
   const handleSearch = (searchFilters: SearchFilters) => {
     setFilters(searchFilters);

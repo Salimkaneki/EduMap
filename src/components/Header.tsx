@@ -16,8 +16,8 @@ const Header = () => {
           </Link>
         </div>
 
-        {/* Barre de recherche centrale améliorée */}
-        <div className="hidden md:block flex-grow mx-24 relative">
+        {/* Barre de recherche centrale réduite */}
+        <div className="hidden md:block w-1/3 relative">
           <div className={`flex items-center w-full rounded-full border ${searchFocused ? 'border-gray-400 ring-2 ring-gray-100 shadow-lg' : 'border-gray-300 shadow-sm hover:shadow-md'} transition-all duration-200`}>
             <div className="flex-1 flex items-center pl-6 pr-2 py-3">
               {/* Icône de recherche intégrée à l'input */}
@@ -64,6 +64,9 @@ const Header = () => {
           <Link href="/map" className="hidden md:inline-block text-gray-700 hover:text-gray-900 font-medium">
             Établissements
           </Link>
+          <Link href="/interactive-map" className="hidden md:inline-block text-gray-700 hover:text-gray-900 font-medium">
+            Carte Interactive
+          </Link>
           
           <button className="p-2 rounded-full hover:bg-gray-100">
             {/* Icône globe simple */}
@@ -74,25 +77,20 @@ const Header = () => {
             </svg>
           </button>
           
-          <div className="flex items-center border border-gray-300 rounded-full p-2 hover:shadow-md cursor-pointer">
-            {/* Icône menu hamburger simple */}
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-700 mr-2">
-              <line x1="3" y1="12" x2="21" y2="12"></line>
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
-            {/* Icône utilisateur simple */}
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-700 bg-gray-100 rounded-full p-1">
+          {/* Nouveau bouton de connexion */}
+          <Link href="/login" className="flex items-center bg-black text-white px-4 py-2 rounded-full hover:bg-gray-800 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
-          </div>
+            <span className="font-medium">Se connecter</span>
+          </Link>
         </div>
       </div>
       
       {/* Barre de recherche mobile améliorée */}
       <div className="md:hidden mt-4">
-        <div className="flex items-center w-full rounded-full border border-gray-300 shadow-sm hover:shadow-md">
+        <div className="flex items-center w-1/2 mx-auto rounded-full border border-gray-300 shadow-sm hover:shadow-md">
           <div className="flex items-center px-4 py-3 flex-grow">
             {/* Icône de recherche simplifiée */}
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500 mr-3">
@@ -105,6 +103,30 @@ const Header = () => {
               className="w-full outline-none bg-transparent text-gray-800 placeholder-gray-500"
             />
           </div>
+        </div>
+        
+        {/* Navigation mobile - ajout du lien Carte Interactive et Se connecter */}
+        <div className="flex justify-center space-x-4 mt-3">
+          <Link href="/about" className="text-gray-700 text-sm hover:text-gray-900 font-medium">
+            À propos
+          </Link>
+          <Link href="/map" className="text-gray-700 text-sm hover:text-gray-900 font-medium">
+            Établissements
+          </Link>
+          <Link href="/interactive-map" className="text-gray-700 text-sm hover:text-gray-900 font-medium">
+            Carte Interactive
+          </Link>
+        </div>
+        
+        {/* Bouton de connexion mobile */}
+        <div className="flex justify-center mt-3">
+          <Link href="/login" className="flex items-center bg-black text-white px-4 py-2 rounded-full hover:bg-gray-800 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span className="font-medium text-sm">Se connecter</span>
+          </Link>
         </div>
       </div>
     </header>
