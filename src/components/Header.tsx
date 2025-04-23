@@ -62,11 +62,11 @@ const Header = () => {
             À propos
           </Link>
           <Link href="/map" className="hidden md:inline-block text-gray-700 hover:text-gray-900 font-medium">
-            Établissements
+            Carte d'établissements
           </Link>
-          <Link href="/interactive-map" className="hidden md:inline-block text-gray-700 hover:text-gray-900 font-medium">
+          {/* <Link href="/interactive-map" className="hidden md:inline-block text-gray-700 hover:text-gray-900 font-medium">
             Carte Interactive
-          </Link>
+          </Link> */}
           
           <button className="p-2 rounded-full hover:bg-gray-100">
             {/* Icône globe simple */}
@@ -111,11 +111,11 @@ const Header = () => {
             À propos
           </Link>
           <Link href="/map" className="text-gray-700 text-sm hover:text-gray-900 font-medium">
-            Établissements
+            Carte des établissements
           </Link>
-          <Link href="/interactive-map" className="text-gray-700 text-sm hover:text-gray-900 font-medium">
+          {/* <Link href="/interactive-map" className="text-gray-700 text-sm hover:text-gray-900 font-medium">
             Carte Interactive
-          </Link>
+          </Link> */}
         </div>
         
         {/* Bouton de connexion mobile */}
