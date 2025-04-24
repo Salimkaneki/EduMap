@@ -62,7 +62,7 @@ const Header = () => {
             À propos
           </Link>
           <Link href="/map" className="hidden md:inline-block text-gray-700 hover:text-gray-900 font-medium">
-            Carte d'établissements
+            Carte d&apos;établissements
           </Link>
           {/* <Link href="/interactive-map" className="hidden md:inline-block text-gray-700 hover:text-gray-900 font-medium">
             Carte Interactive
