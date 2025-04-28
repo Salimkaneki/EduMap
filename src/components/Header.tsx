@@ -19,7 +19,7 @@ const Header = () => {
 
         {/* Navigation au centre - visible sur desktop uniquement */}
         <div className="hidden md:flex items-center justify-center border border-gray-200 rounded-full shadow-sm overflow-hidden">
-          <Link href="/about" className="px-4 py-3 text-sm font-medium hover:bg-gray-50">
+          <Link href="/about" className="px-6 py-4 text-base font-semibold hover:bg-gray-50">
             À propos
           </Link>
           <span className="border-r border-gray-200 h-6"></span>
@@ -94,8 +94,8 @@ const Header = () => {
       {mobileMenuOpen && (
         <div className="md:hidden absolute w-full bg-white border-b border-gray-200 shadow-lg z-40 left-0 right-0 transform transition-all duration-300 ease-in-out">
           <div className="max-w-7xl mx-auto px-6 py-4 space-y-1">
-            <Link href="/about" className="flex items-center px-4 py-3 text-base font-medium text-gray-700 rounded-lg hover:bg-gray-100 hover:text-black transition duration-200">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-3">
+            <Link href="/about" className="flex items-center px-4 py-4 text-lg font-semibold text-gray-700 rounded-lg hover:bg-gray-100 hover:text-black transition duration-200">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-3">
                 <circle cx="12" cy="12" r="10"></circle>
                 <path d="M12 16v-4"></path>
                 <path d="M12 8h.01"></path>
