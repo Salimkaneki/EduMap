@@ -1,6 +1,8 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface School {
   id: number;
@@ -10,10 +12,20 @@ interface School {
   level: string;
   rating: number;
   reviews: number;
+  // Ajoutez d'autres champs pour la page détaillée
+  description?: string;
+  address?: string;
+  contact?: string;
+  email?: string;
+  website?: string;
+  facilities?: string[];
+  programs?: string[];
+  admissionInfo?: string;
+  fees?: string;
 }
 
-// Données fictives pour les établissements
-const schoolsData = [
+// Données fictives plus complètes pour les établissements
+const schoolsData: School[] = [
   {
     id: 1,
     name: "Lycée de l'Excellence",
@@ -22,6 +34,15 @@ const schoolsData = [
     level: "Secondaire",
     rating: 4.7,
     reviews: 128,
+    description: "Le Lycée de l'Excellence est un établissement public de renom situé au cœur de Lomé. Depuis sa création en 1985, il offre une formation académique rigoureuse qui prépare les élèves aux standards internationaux.",
+    address: "123 Avenue de l'Indépendance, Lomé",
+    contact: "+228 22 21 XX XX",
+    email: "contact@lycee-excellence.tg",
+    website: "www.lycee-excellence.tg",
+    facilities: ["Laboratoires scientifiques", "Bibliothèque moderne", "Terrain de sport", "Salle informatique", "Cantine"],
+    programs: ["Série scientifique", "Série littéraire", "Série économique"],
+    admissionInfo: "Admission sur concours ou dossier selon les places disponibles. Inscriptions de mai à juillet.",
+    fees: "Frais d'inscription: 15,000 FCFA, Frais de scolarité: Gratuit (établissement public)"
   },
   {
     id: 2,
@@ -31,6 +52,15 @@ const schoolsData = [
     level: "Primaire",
     rating: 4.5,
     reviews: 94,
+    description: "L'École Primaire Les Petits Génies est connue pour son approche pédagogique innovante qui stimule la créativité et l'esprit critique des enfants dès leur plus jeune âge.",
+    address: "45 Rue des Flamboyants, Quartier Tokoin, Lomé",
+    contact: "+228 90 15 XX XX",
+    email: "info@petitsgenies.edu.tg",
+    website: "www.petitsgenies.edu.tg",
+    facilities: ["Aires de jeux", "Salle multimédia", "Cantine bio", "Jardin pédagogique"],
+    programs: ["Programme national", "Initiation à l'anglais", "Arts créatifs", "Codage informatique débutant"],
+    admissionInfo: "Inscriptions ouvertes toute l'année selon les places disponibles. Entretien avec les parents et l'enfant.",
+    fees: "Frais d'inscription: 50,000 FCFA, Frais de scolarité: 250,000 FCFA/an"
   },
   {
     id: 3,
@@ -40,6 +70,15 @@ const schoolsData = [
     level: "Secondaire",
     rating: 4.8,
     reviews: 156,
+    description: "Fondé par les Frères des Écoles Chrétiennes, le Collège Saint Joseph est réputé pour son excellence académique et son éducation aux valeurs chrétiennes et humaines.",
+    address: "Route de Missahoé, Kpalimé",
+    contact: "+228 24 42 XX XX",
+    email: "direction@collegestjoseph.org",
+    website: "www.collegestjoseph.org",
+    facilities: ["Chapelle", "Internat", "Laboratoires", "Terrains sportifs", "Bibliothèque"],
+    programs: ["Premier cycle (6ème à 3ème)", "Second cycle (2nde à Terminale)", "Séries scientifiques et littéraires"],
+    admissionInfo: "Admission sur test d'entrée et étude de dossier. Période d'inscription: avril à août.",
+    fees: "Frais d'inscription: 40,000 FCFA, Frais de scolarité: 300,000 FCFA/an, Internat: 500,000 FCFA/an supplémentaires"
   },
   {
     id: 4,
@@ -49,6 +88,15 @@ const schoolsData = [
     level: "Supérieur",
     rating: 4.3,
     reviews: 87,
+    description: "L'Institut Supérieur de Technologies forme les ingénieurs et techniciens de demain dans divers domaines technologiques essentiels au développement du pays.",
+    address: "Zone Administrative, Sokodé",
+    contact: "+228 25 51 XX XX",
+    email: "scolarite@ist.edu.tg",
+    website: "www.ist.edu.tg",
+    facilities: ["Amphithéâtres", "Laboratoires spécialisés", "Centre de recherche", "Résidence universitaire"],
+    programs: ["Génie informatique", "Génie civil", "Électrotechnique", "Énergies renouvelables", "Agronomie"],
+    admissionInfo: "Admission sur concours national ou sur dossier pour les titulaires d'un baccalauréat scientifique.",
+    fees: "Frais d'inscription: 25,000 FCFA, Frais universitaires: 100,000 FCFA/an (subventionnés par l'État)"
   },
   {
     id: 5,
@@ -58,6 +106,15 @@ const schoolsData = [
     level: "Primaire",
     rating: 4.6,
     reviews: 71,
+    description: "L'École du Progrès offre un enseignement de qualité inspiré par les valeurs protestantes tout en étant ouverte aux élèves de toutes confessions.",
+    address: "Quartier Djama, Atakpamé",
+    contact: "+228 44 22 XX XX",
+    email: "ecole.progres@gmail.com",
+    website: "www.ecoleduprogrès.edu.tg",
+    facilities: ["Salles climatisées", "Espace de culte", "Infirmerie", "Terrain de jeux"],
+    programs: ["Programme national", "Enseignement religieux", "Initiation à l'informatique", "Activités artistiques"],
+    admissionInfo: "Inscriptions de mars à août. Test de niveau pour les transferts d'autres écoles.",
+    fees: "Frais d'inscription: 30,000 FCFA, Frais de scolarité: 180,000 FCFA/an"
   },
   {
     id: 6,
@@ -67,6 +124,15 @@ const schoolsData = [
     level: "Secondaire",
     rating: 4.2,
     reviews: 103,
+    description: "Le Lycée Moderne de Tsévié est un établissement public qui met l'accent sur l'innovation pédagogique et l'adaptation aux réalités contemporaines.",
+    address: "Avenue Principale, Tsévié",
+    contact: "+228 23 36 XX XX",
+    email: "lyceemoderne@education.gouv.tg",
+    website: "www.lyceemoderne-tsevie.gouv.tg",
+    facilities: ["Laboratoire informatique", "Bibliothèque numérique", "Terrains sportifs"],
+    programs: ["Enseignement général", "Option sciences", "Option lettres"],
+    admissionInfo: "Inscription directe pour les élèves ayant réussi le BEPC. Transferts possibles selon places disponibles.",
+    fees: "Frais d'inscription: 10,000 FCFA, Frais de scolarité: Gratuit (établissement public)"
   },
   {
     id: 7,
@@ -76,6 +142,15 @@ const schoolsData = [
     level: "Secondaire",
     rating: 4.9,
     reviews: 112,
+    description: "Le Collège Notre Dame est réputé pour son excellence académique et son éducation holistique qui développe les talents intellectuels, sportifs et artistiques des élèves.",
+    address: "Quartier Nanergou, Dapaong",
+    contact: "+228 27 70 XX XX",
+    email: "notredame@diocese-dapaong.org",
+    website: "www.collegenotredame-dapaong.org",
+    facilities: ["Chapelle", "Internat filles et garçons", "Médiathèque", "Complexe sportif", "Studio artistique"],
+    programs: ["Cycle complet du secondaire", "Option sciences", "Option lettres", "Option arts"],
+    admissionInfo: "Admission sur concours organisé en juin. Dossiers à retirer dès mars.",
+    fees: "Frais d'inscription: 45,000 FCFA, Frais de scolarité: 320,000 FCFA/an, Internat: 450,000 FCFA/an"
   },
   {
     id: 8,
@@ -85,13 +160,28 @@ const schoolsData = [
     level: "Primaire",
     rating: 4.4,
     reviews: 68,
+    description: "L'École Primaire Avenir se distingue par son approche pédagogique centrée sur l'enfant et son bilinguisme français-anglais dès le plus jeune âge.",
+    address: "53 Rue des Acacias, Quartier Adidogomé, Lomé",
+    contact: "+228 91 23 XX XX",
+    email: "contact@ecole-avenir.com",
+    website: "www.ecole-avenir.com",
+    facilities: ["Classes à effectif réduit", "Laboratoire de langues", "Piscine", "Atelier créatif"],
+    programs: ["Programme bilingue", "Initiation aux langues", "Éveil musical", "Sports diversifiés"],
+    admissionInfo: "Inscriptions de janvier à août. Entretien avec les parents et évaluation ludique de l'enfant.",
+    fees: "Frais d'inscription: 60,000 FCFA, Frais de scolarité: 350,000 FCFA/an"
   },
 ];
 
 // Composant pour une carte d'établissement style Airbnb
 const ModernSchoolCard = ({ school }: { school: School }) => {
+  const router = useRouter();
+
+  const handleClick = () => {
+    router.push(`/schools/${school.id}`);
+  };
+
   return (
-    <div className="group cursor-pointer">
+    <div className="group cursor-pointer" onClick={handleClick}>
       {/* Placeholder coloré pour l'image */}
       <div className="relative aspect-[4/3] rounded-xl overflow-hidden mb-3 bg-gradient-to-br from-gray-200 to-gray-300">
         <div className="absolute inset-0 flex items-center justify-center">
