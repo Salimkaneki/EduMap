@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
-import SchoolCard from '@/components/SchoolCard';
+import ModernSchoolsGrid from '@/components/ModernSchoolsGrid';
 import Footer from '@/components/Footer';
 
 const HomePage = () => {
@@ -10,7 +10,7 @@ const HomePage = () => {
       <Header />
       <main className="flex-grow p-8">
         <HeroSection />
-        <SchoolCard />
+        <ModernSchoolsGrid />
       </main>
       <Footer />
     </div>

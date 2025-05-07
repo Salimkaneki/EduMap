@@ -1,6 +1,25 @@
-import { School } from '../types/school';
-
-export const schoolsData: School[] = [
+// app/data/schools.ts
+export interface School {
+    id: number;
+    name: string;
+    type: string;
+    location: string;
+    level: string;
+    rating: number;
+    reviews: number;
+    description?: string;
+    address?: string;
+    contact?: string;
+    email?: string;
+    website?: string;
+    facilities?: string[];
+    programs?: string[];
+    admissionInfo?: string;
+    fees?: string;
+  }
+  
+  // Données fictives pour les établissements
+  export const schoolsData: School[] = [
     {
       id: 1,
       name: "Lycée de l'Excellence",
