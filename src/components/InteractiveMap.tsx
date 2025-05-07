@@ -61,12 +61,14 @@ const MapController = ({ center, zoom }: { center: [number, number], zoom: numbe
   return null;
 };
 
-// Fonction pour créer des clusters de marqueurs (solution simple sans bibliothèque)
-const createClusterMarkers = (map: any, markers: any[]) => {
+// CORRECTION: Suppression de la fonction non utilisée ou conversion en commentaire
+/* Fonction pour créer des clusters de marqueurs (solution simple sans bibliothèque)
+const createClusterMarkers = (map: unknown, markers: Establishment[]) => {
   // Implémentation basique - cette fonction serait remplacée par une vraie bibliothèque
   // de clustering comme react-leaflet-cluster dans une version plus avancée
   return markers;
 };
+*/
 
 // Composant pour la légende de la carte
 const MapLegend: React.FC = () => {
@@ -140,6 +142,8 @@ const SearchBox: React.FC<{
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onFocus={() => searchTerm.length >= 2 && setShowResults(true)}
+          // CORRECTION: Suppression du role="textbox" puisque c'est implicite pour les inputs
+          aria-expanded={showResults}
         />
         <span className="absolute left-2 top-2 text-gray-400">🔍</span>
         
