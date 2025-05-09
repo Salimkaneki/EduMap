@@ -6,10 +6,9 @@ import { Etablissement } from '../lib/actions';
 
 // Composant pour afficher une carte d'établissement
 const SchoolCard = ({ etablissement }: { etablissement: Etablissement }) => {
-  if (!etablissement) return null; // Sécurité
-
   const router = useRouter();
 
+  if (!etablissement) return null; 
 
   const handleClick = () => {
     router.push(`/schools/${etablissement.id}`);
@@ -34,8 +33,6 @@ const SchoolCard = ({ etablissement }: { etablissement: Etablissement }) => {
 
   // Calcul d'un "score" pour simuler un système de notation
   const calculateFacilityScore = () => {
-    if (!etablissement) return 1; 
-  
     let score = 3.0; // Score de base
     if (etablissement.existe_elect) score += 0.5;
     if (etablissement.existe_latrine) score += 0.3;
@@ -46,8 +43,6 @@ const SchoolCard = ({ etablissement }: { etablissement: Etablissement }) => {
     return Math.max(1, Math.min(5, score));
   };
   
-  
-
   // Générer un nombre fictif d'avis basé sur l'ID
   const generateReviewCount = (id: number) => {
     return 30 + (id % 100);
