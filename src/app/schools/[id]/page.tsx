@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
+// L'import de School est commenté, ce qui est correct
 // import { School } from "../../../data/schools";
 
 import SchoolHeader from "@/components/schools/SchoolHeader";
@@ -33,11 +34,11 @@ function SchoolDetailPageContent({ id }: { id: string }) {
   const router = useRouter();
   const numericId = parseInt(id);
   
-  const { 
-    school, 
-    similarSchools, 
-    loading, 
-    error 
+  const {
+    school,
+    similarSchools,
+    loading,
+    error
   } = useSchoolData(numericId);
 
   // Fonction pour naviguer vers une école similaire
@@ -59,7 +60,7 @@ function SchoolDetailPageContent({ id }: { id: string }) {
     <div className="bg-white min-h-screen">
       {/* En-tête avec image de fond */}
       <SchoolHeader school={school} />
-
+      
       {/* Contenu principal */}
       <div className="max-w-5xl mx-auto px-4 py-8">
         {/* Informations principales */}
@@ -76,11 +77,11 @@ function SchoolDetailPageContent({ id }: { id: string }) {
         {/* Établissements similaires */}
         {similarSchools.length > 0 && (
           <SimilarSchools 
-            similarSchools={similarSchools} 
-            onSelectSchool={goToSimilarSchool} 
+            similarSchools={similarSchools}
+            onSelectSchool={goToSimilarSchool}
           />
         )}
-
+        
         {/* Bouton de retour en haut */}
         <BackToTopButton />
       </div>

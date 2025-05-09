@@ -1,5 +1,22 @@
+// Définition des interfaces
+interface SchoolData {
+  niveau?: string;
+  nom_etablissement: string;
+  code_minesec?: number | string;
+  code_minedub?: number | string;
+  existe_elect?: boolean | number;
+  existe_latrine?: boolean | number;
+  eau?: boolean | number;
+  acces_toute_saison?: boolean | number;
+  sommedenb_salles_classes_dur?: number;
+  bibliotheque?: boolean | number;
+  internet?: boolean | number;
+  cantine?: boolean | number;
+  infirmerie?: boolean | number;
+}
+
 // Fonction pour déterminer le niveau d'une école
-export function determineLevel(data: any): string {
+export function determineLevel(data: SchoolData): string {
     // Si le niveau est explicitement fourni
     if (data.niveau) return data.niveau;
     
@@ -15,10 +32,10 @@ export function determineLevel(data: any): string {
     if (data.code_minedub) return 'Primaire';
     
     return 'Non spécifié';
-  }
+}
   
-  // Fonction pour déterminer les installations
-  export function determineFacilities(data: any): string[] {
+// Fonction pour déterminer les installations
+export function determineFacilities(data: SchoolData): string[] {
     const facilities: string[] = [];
     
     // Ajout des installations en fonction des données
@@ -50,13 +67,13 @@ export function determineLevel(data: any): string {
       facilities.push('Infirmerie');
     
     return facilities;
-  }
+}
   
-  // Fonction pour déterminer la couleur en fonction du type d'établissement
-  export function getSchoolTypeColor(type: string): string {
+// Fonction pour déterminer la couleur en fonction du type d'établissement
+export function getSchoolTypeColor(type: string): string {
     if (type === "Public") return "bg-green-100 text-green-800";
     if (type.includes("Laïc")) return "bg-blue-100 text-blue-800";
     if (type.includes("Protestant")) return "bg-purple-100 text-purple-800";
     if (type.includes("Catholique")) return "bg-indigo-100 text-indigo-800";
     return "bg-orange-100 text-orange-800";
-  }
+}
