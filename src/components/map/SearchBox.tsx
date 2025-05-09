@@ -1,4 +1,3 @@
-// components/map/SearchBox.tsx
 import React, { useState, useEffect } from 'react';
 import type { Establishment } from '@/types/types';
 
@@ -36,7 +35,6 @@ const SearchBox: React.FC<SearchBoxProps> = ({ establishments, onSelect }) => {
           onChange={(e) => setSearchTerm(e.target.value)}
           onFocus={() => searchTerm.length >= 2 && setShowResults(true)}
           aria-label="Rechercher un établissement"
-          aria-expanded={showResults}
           aria-controls="search-results"
         />
         <span className="absolute left-2 top-2 text-gray-400" aria-hidden="true">🔍</span>
