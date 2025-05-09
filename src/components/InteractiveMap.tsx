@@ -142,8 +142,7 @@ const SearchBox: React.FC<{
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onFocus={() => searchTerm.length >= 2 && setShowResults(true)}
-          // CORRECTION: Suppression du role="textbox" puisque c'est implicite pour les inputs
-          aria-expanded={showResults}
+          // CORRECTION: Suppression de aria-expanded car non supporté par input
         />
         <span className="absolute left-2 top-2 text-gray-400">🔍</span>
         

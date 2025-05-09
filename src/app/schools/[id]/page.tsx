@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { School } from "../../../data/schools";
+// import { School } from "../../../data/schools";
 
 import SchoolHeader from "@/components/schools/SchoolHeader";
 import SchoolInfo from "@/components/schools/SchoolInfo";
