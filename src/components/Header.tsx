@@ -6,141 +6,130 @@ import Link from 'next/link';
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
+  const navLinks = [
+    { href: "/about", label: "À propos", icon: "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
+    { href: "/map", label: "Carte", icon: "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z" },
+    { href: "/resources", label: "Ressources", icon: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" },
+    { href: "/contact", label: "Contact", icon: "M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" }
+  ];
+
+  const Icon = ({ path, className = "w-5 h-5" }: { path: string; className?: string }) => (
+    <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+      <path d={path} />
+    </svg>
+  );
+
   return (
-    <header className="border-b border-gray-200 bg-white py-4 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-6 md:px-8 flex items-center justify-between">
-        {/* Logo */}
-        <div className="flex-shrink-0">
-          <Link href="/" className="text-black font-bold text-2xl tracking-tight transition-all duration-200 hover:text-gray-700 flex items-center">
-            <span className="bg-black text-white px-2 py-1 rounded-md mr-1">Edu</span>
-            <span>Map</span>
-          </Link>
-        </div>
-
-        {/* Navigation au centre - visible sur desktop uniquement */}
-        <div className="hidden md:flex items-center justify-center border border-gray-200 rounded-full shadow-sm overflow-hidden">
-          <Link href="/about" className="px-6 py-4 text-base font-semibold hover:bg-gray-50">
-            À propos
-          </Link>
-          <span className="border-r border-gray-200 h-6"></span>
-          <Link href="/map" className="px-4 py-3 text-sm font-medium hover:bg-gray-50">
-            Carte
-          </Link>
-          <span className="border-r border-gray-200 h-6"></span>
-          <button className="px-4 py-3 text-sm font-medium hover:bg-gray-50 flex items-center">
-            <span>Plus</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-2">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </button>
-        </div>
-
-        {/* Boutons d'action à droite - desktop */}
-        <div className="hidden md:flex items-center space-x-2">
-          <Link href="/host" className="text-sm font-medium px-4 py-3 rounded-full hover:bg-gray-50">
-            Devenir partenaire
-          </Link>
-          
-          <button className="p-3 rounded-full hover:bg-gray-50">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="2" y1="12" x2="22" y2="12"></line>
-              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-            </svg>
-          </button>
-          
-          {/* Menu utilisateur style Airbnb */}
-          <div className="relative">
-            <button className="flex items-center border border-gray-200 rounded-full p-1 pl-3 pr-1 hover:shadow-md transition-shadow">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-                <line x1="4" y1="12" x2="20" y2="12"></line>
-                <line x1="4" y1="6" x2="20" y2="6"></line>
-                <line x1="4" y1="18" x2="20" y2="18"></line>
-              </svg>
-              <div className="bg-gray-500 text-white p-2 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
+    <div className="font-['Poppins',sans-serif]">
+      <header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            
+            {/* Logo avec nouveau style */}
+            <Link href="/" className="flex items-center space-x-2 group">
+              <div className="relative">
+                <div className="w-10 h-10 bg-gradient-to-br from-gray-900 to-gray-700 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
+                  <span className="text-white font-bold text-lg">E</span>
+                </div>
               </div>
+              <div className="hidden sm:block">
+                <h1 className="text-xl font-bold text-gray-900 group-hover:text-gray-700 transition-colors">
+                  EduMap
+                </h1>
+                <p className="text-xs text-gray-500 -mt-1">Carte Interactive</p>
+              </div>
+            </Link>
+
+            {/* Navigation principale - Desktop */}
+            <nav className="hidden md:flex items-center space-x-1">
+              {navLinks.map(({ href, label, icon }) => (
+                <Link 
+                  key={href} 
+                  href={href} 
+                  className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 group"
+                >
+                  <Icon path={icon} className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+                  {label}
+                </Link>
+              ))}
+            </nav>
+
+            {/* Actions à droite - Desktop */}
+            <div className="hidden md:flex items-center space-x-4">
+              <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+                <Icon path="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" className="w-5 h-5" />
+              </button>
+              
+              <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors relative">
+                <Icon path="M15 17h5l-5 5v-5zM4 3h16a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2z" className="w-5 h-5" />
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+              </button>
+
+              <div className="w-px h-6 bg-gray-300"></div>
+
+              <Link href="/login" className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-colors">
+                Connexion
+              </Link>
+              
+              <Link href="/register" className="px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-colors shadow-sm">
+                Inscription
+              </Link>
+            </div>
+
+            {/* Menu mobile - Bouton */}
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="Menu"
+            >
+              <Icon 
+                path={mobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} 
+                className="w-6 h-6" 
+              />
             </button>
           </div>
         </div>
 
-        {/* Menu hamburger sur mobile */}
-        <div className="md:hidden flex items-center">
-          <button 
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 transition duration-200"
-            aria-label="Menu principal"
-          >
-            {mobileMenuOpen ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-800">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-800">
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <line x1="3" y1="18" x2="21" y2="18"></line>
-              </svg>
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Menu mobile - slide down animation */}
-      {mobileMenuOpen && (
-        <div className="md:hidden absolute w-full bg-white border-b border-gray-200 shadow-lg z-40 left-0 right-0 transform transition-all duration-300 ease-in-out">
-          <div className="max-w-7xl mx-auto px-6 py-4 space-y-1">
-            <Link href="/about" className="flex items-center px-4 py-4 text-lg font-semibold text-gray-700 rounded-lg hover:bg-gray-100 hover:text-black transition duration-200">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-3">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M12 16v-4"></path>
-                <path d="M12 8h.01"></path>
-              </svg>
-              À propos
-            </Link>
-            <Link href="/map" className="flex items-center px-4 py-3 text-base font-medium text-gray-700 rounded-lg hover:bg-gray-100 hover:text-black transition duration-200">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-3">
-                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
-                <line x1="8" y1="2" x2="8" y2="18"></line>
-                <line x1="16" y1="6" x2="16" y2="22"></line>
-              </svg>
-              Carte
-            </Link>
-            <Link href="/host" className="flex items-center px-4 py-3 text-base font-medium text-gray-700 rounded-lg hover:bg-gray-100 hover:text-black transition duration-200">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-3">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="8.5" cy="7" r="4"></circle>
-                <line x1="20" y1="8" x2="20" y2="14"></line>
-                <line x1="23" y1="11" x2="17" y2="11"></line>
-              </svg>
-              Devenir partenaire
-            </Link>
-            <Link href="/login" className="flex items-center px-4 py-3 mt-2 text-base font-medium bg-gray-100 text-black rounded-lg hover:bg-gray-200 transition duration-200">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-3">
-                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-                <polyline points="10 17 15 12 10 7"></polyline>
-                <line x1="15" y1="12" x2="3" y2="12"></line>
-              </svg>
-              Se connecter
-            </Link>
-            <div className="pt-4 mt-2 border-t border-gray-200">
-              <button className="flex items-center w-full px-4 py-3 text-base font-medium text-gray-700 rounded-lg hover:bg-gray-100 hover:text-black transition duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-3">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="2" y1="12" x2="22" y2="12"></line>
-                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                </svg>
-                Langue et devise
-              </button>
+        {/* Menu mobile - Panel */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-white border-t border-gray-100 shadow-lg">
+            <div className="max-w-6xl mx-auto px-4 py-4 space-y-2">
+              {navLinks.map(({ href, label, icon }) => (
+                <Link 
+                  key={href} 
+                  href={href} 
+                  className="flex items-center px-4 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Icon path={icon} className="w-5 h-5 mr-3" />
+                  {label}
+                </Link>
+              ))}
+              
+              <div className="pt-4 mt-4 border-t border-gray-200 space-y-2">
+                <Link 
+                  href="/auth/sign-in" 
+                  className="flex items-center px-4 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Icon path="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" className="w-5 h-5 mr-3" />
+                  Connexion
+                </Link>
+                
+                <Link 
+                  href="/register" 
+                  className="flex items-center px-4 py-3 text-base font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Icon path="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" className="w-5 h-5 mr-3" />
+                  Inscription
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </header>
+        )}
+      </header>
+    </div>
   );
 };
 

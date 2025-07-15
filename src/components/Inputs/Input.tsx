@@ -16,7 +16,7 @@ interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, '
 
 const inputVariants = {
   modern:
-    "border-2 border-slate-200 bg-white focus:border-blue-500 focus:ring-blue-100 rounded-md transition-all duration-300 hover:border-slate-300",
+    "border-2 border-slate-200 bg-white focus:border-blue-500 focus:ring-blue-100 rounded-lg transition-all duration-300 hover:border-slate-300",
   shadow:
     "border border-gray-100 bg-white focus:border-gray-300 focus:ring-0 rounded-md shadow-xl hover:shadow-2xl transition-shadow duration-300"
 };
