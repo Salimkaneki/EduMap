@@ -5,10 +5,10 @@ const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8000/api';
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const { id } = await params;
     
     // Récupérer les paramètres de recherche depuis l'URL
     const { searchParams } = new URL(request.url);

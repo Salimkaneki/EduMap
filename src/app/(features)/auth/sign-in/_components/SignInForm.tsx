@@ -91,13 +91,13 @@ export default function LoginForm() {
           {/* Sign Up Link */}
           <div className="text-center mt-6">
             <span className="text-gray-600 text-sm" style={{ fontFamily: 'Poppins, sans-serif' }}>
-              Vous N'avez Pas De Compte ?{' '}
+              Vous N&apos;avez Pas De Compte ?{' '}
               <button
                 type="button"
                 className="text-blue-600 hover:text-blue-700 font-medium"
                 style={{ fontFamily: 'Poppins, sans-serif' }}
               >
-                S'inscrire ?
+                S&apos;inscrire ?
               </button>
             </span>
           </div>

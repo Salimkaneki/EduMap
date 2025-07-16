@@ -136,8 +136,8 @@ const ModernSchoolsGrid = () => {
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">Aucun établissement trouvé</h3>
               <p className="text-gray-600 leading-relaxed">
-                Nous n'avons trouvé aucun établissement correspondant à vos critères. 
-                Essayez d'ajuster vos filtres de recherche.
+                Nous n&apos;avons trouvé aucun établissement correspondant à vos critères.
+                Essayez d&apos;ajuster vos filtres de recherche.
               </p>
             </div>
           </div>
@@ -163,7 +163,7 @@ const ModernSchoolsGrid = () => {
                 ) : (
                   <>
                     <Sparkles className="w-5 h-5 mr-3 text-[#2D55FB] group-hover:text-[#1B3295] transition-colors" />
-                    <span>Afficher plus d'établissements</span>
+                    <span>Afficher plus d&apos;établissements</span>
                     <ChevronDown className="w-5 h-5 ml-3 text-gray-500 group-hover:text-[#1B3295] transition-colors group-hover:translate-y-1 transform duration-300" />
                   </>
                 )}

@@ -4,9 +4,9 @@ const API_BASE_URL = process.env.API_BASE_URL || 'https://edumap.edufyplus.com/a
 
 export async function GET(
   request: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = context.params;
+  const { id } = await context.params;
 
   try {
     const response = await fetch(`${API_BASE_URL}/etablissements/${id}`, {
@@ -32,9 +32,9 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = context.params;
+  const { id } = await context.params;
 
   try {
     const body = await request.json();
@@ -63,9 +63,9 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = context.params;
+  const { id } = await context.params;
 
   try {
     const response = await fetch(`${API_BASE_URL}/etablissements/${id}`, {
