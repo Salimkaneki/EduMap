@@ -10,7 +10,7 @@ import Footer from '@/components/Footer';
 import { Establishment } from '@/types/types';
 
 // Import dynamique de la carte
-const DynamicMap = dynamic(() => import('@/components/InteractiveMap'), {
+const DynamicMap = dynamic(() => import('@/components/map/SimpleMap'), {
   ssr: false,
   loading: () => (
     <div className="h-[400px] bg-gray-100 flex items-center justify-center">
@@ -214,7 +214,7 @@ export default function EtablissementDetail() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Carte */}
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <DynamicMap establishments={[establishment]}filters={{
+            <DynamicMap establishments={[establishment]} filters={{
                 searchTerm: '',
                 region: '',
                 prefecture: '',
@@ -223,8 +223,7 @@ export default function EtablissementDetail() {
                 withWater: false,
                 withLatrine: false,
                 allSeasonAccess: false
-                }}
-               isLoading={false}/>
+            }} />
             </div>
 
             {/* Informations détaillées */}
