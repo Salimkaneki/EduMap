@@ -1,11 +1,12 @@
 // utils/mapUtils.ts
 import L from 'leaflet';
-import { Establishment } from '@/types/types';
+import type { Establishment, MapFilters } from '@/components/types/index';
 
 // Configuration des icônes Leaflet
 export const fixLeafletIcon = () => {
   if (typeof window !== 'undefined') {
-    delete ((L.Icon.Default.prototype as any)._getIconUrl);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  delete ((L.Icon.Default.prototype as any)._getIconUrl);
     L.Icon.Default.mergeOptions({
       iconRetinaUrl: '/leaflet/marker-icon-2x.png',
       iconUrl: '/leaflet/marker-icon.png',
@@ -40,8 +41,8 @@ export const createCustomIcon = (establishment: Establishment) => {
 };
 
 // Filtrage des établissements
-export const filterEstablishments = (establishments: Establishment[], filters: any) => {
-  return establishments.filter(establishment => {
+export const filterEstablishments = (establishments: Establishment[], filters: MapFilters) => {
+  return establishments.filter((establishment) => {
     if (filters.withElectricity && establishment.existe_elect !== 'OUI') return false;
     if (filters.withLatrine && establishment.existe_latrine !== 'OUI') return false;
     if (filters.withWater && establishment.eau !== 'OUI') return false;

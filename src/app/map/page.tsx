@@ -2,34 +2,25 @@
 
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import type { Establishment, MapFilters } from '@/components/types/index';
 
-// Types
-interface Establishment {
-  id: string;
-  nom_etablissement: string;
-  region: string;
-  prefecture: string;
-  ville_village_quartier: string;
-  libelle_type_statut_etab: string;
-  libelle_type_systeme: string;
-  existe_elect: 'OUI' | 'NON';
-  existe_latrine: 'OUI' | 'NON';
-  eau: 'OUI' | 'NON';
-  acces_toute_saison: 'OUI' | 'NON';
-  LATITUDE: number;
-  LONGITUDE: number;
-}
-
-interface MapFilters {
-  searchTerm: string;
-  region: string;
-  prefecture: string;
-  type: string;
-  withElectricity: boolean;
-  withWater: boolean;
-  withLatrine: boolean;
-  allSeasonAccess: boolean;
-}
+// Type minimal pour la réponse API de /etablissements/map
+type ApiResponse = {
+  id?: number | string;
+  nom_etablissement?: string;
+  latitude?: string | number;
+  longitude?: string | number;
+  // Champs potentiellement présents mais non garantis
+  region?: string;
+  prefecture?: string;
+  ville_village_quartier?: string;
+  libelle_type_statut_etab?: string;
+  libelle_type_systeme?: string;
+  existe_elect?: 'OUI' | 'NON' | string;
+  existe_latrine?: 'OUI' | 'NON' | string;
+  eau?: 'OUI' | 'NON' | string;
+  acces_toute_saison?: 'OUI' | 'NON' | string;
+};
 
 // Import dynamique pour éviter les problèmes SSR avec Leaflet
 const DynamicMap = dynamic(() => import('@/components/map/SimpleMap'), {
@@ -57,7 +48,7 @@ export default function MapPage() {
     withElectricity: false,
     withWater: false,
     withLatrine: false,
-    allSeasonAccess: false
+    allSeasonAccess: false,
   });
 
   // Récupération des données depuis l'API
@@ -72,24 +63,38 @@ export default function MapPage() {
         if (!response.ok) {
           throw new Error(`Erreur HTTP: ${response.status}`);
         }
-        
-        const data = await response.json();
-        
+
+  const data: ApiResponse[] = await response.json();
+
         // Vérifier la structure des données et les nettoyer si nécessaire
-        const processedData = Array.isArray(data) ? data : data.data || [];
+        const processedData = Array.isArray(data) ? data : [];
         
         // Filtrer les établissements avec des coordonnées valides
-        const validEstablishments = processedData.filter((item: any) => 
-          (item.LATITUDE || item.latitude) && 
-          (item.LONGITUDE || item.longitude) && 
-          !isNaN(parseFloat(item.LATITUDE || item.latitude)) && 
-          !isNaN(parseFloat(item.LONGITUDE || item.longitude))
-        ).map((item: any) => ({
-          ...item,
-          id: item.id || item.code_etablissement || Math.random().toString(36).substr(2, 9),
-          LATITUDE: parseFloat(item.LATITUDE || item.latitude),
-          LONGITUDE: parseFloat(item.LONGITUDE || item.longitude)
-        }));
+        const validEstablishments: Establishment[] = processedData
+          .filter((item: ApiResponse) => {
+            const lat = typeof item.latitude === 'number' ? item.latitude : parseFloat(String(item.latitude ?? ''));
+            const lon = typeof item.longitude === 'number' ? item.longitude : parseFloat(String(item.longitude ?? ''));
+            return !isNaN(lat) && !isNaN(lon);
+          })
+          .map((item: ApiResponse): Establishment => {
+            const lat = typeof item.latitude === 'number' ? item.latitude : parseFloat(String(item.latitude ?? ''));
+            const lon = typeof item.longitude === 'number' ? item.longitude : parseFloat(String(item.longitude ?? ''));
+            return {
+              id: String(item.id ?? Math.random().toString(36).slice(2, 11)),
+              nom_etablissement: item.nom_etablissement ?? 'Établissement',
+              region: item.region ?? '',
+              prefecture: item.prefecture ?? '',
+              ville_village_quartier: item.ville_village_quartier ?? '',
+              libelle_type_statut_etab: item.libelle_type_statut_etab ?? '',
+              libelle_type_systeme: item.libelle_type_systeme ?? '',
+              existe_elect: (item.existe_elect === 'OUI' ? 'OUI' : 'NON'),
+              existe_latrine: (item.existe_latrine === 'OUI' ? 'OUI' : 'NON'),
+              eau: (item.eau === 'OUI' ? 'OUI' : 'NON'),
+              acces_toute_saison: (item.acces_toute_saison === 'OUI' ? 'OUI' : 'NON'),
+              LATITUDE: lat,
+              LONGITUDE: lon,
+            };
+          });
         
         setEstablishments(validEstablishments);
       } catch (err) {
@@ -105,7 +110,7 @@ export default function MapPage() {
   
   // Fonction pour mettre à jour un filtre spécifique
   const updateFilter = (key: keyof MapFilters, value: boolean | string) => {
-    setFilters(prev => ({
+    setFilters((prev: MapFilters) => ({
       ...prev,
       [key]: value
     }));
@@ -274,9 +279,9 @@ export default function MapPage() {
               </select>
             </div>
 
-            {/* Filtre par type d'établissement */}
+            {/* Filtre par type d\'établissement */}
             <div>
-              <h3 className="font-medium text-sm text-gray-700 mb-3">Type d'établissement</h3>
+              <h3 className="font-medium text-sm text-gray-700 mb-3">Type d&apos;établissement</h3>
               <select 
                 className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 value={filters.type}
@@ -347,11 +352,11 @@ export default function MapPage() {
 
         {/* Section d'aide */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Instructions d'utilisation */}
+      {/* Instructions d\'utilisation */}
           <div className="p-6 bg-blue-50 rounded-lg border border-blue-200">
             <h3 className="font-bold text-blue-900 mb-3 flex items-center">
               <span className="mr-2">ℹ️</span>
-              Comment utiliser la carte
+        Comment utiliser la carte
             </h3>
             <div className="text-sm text-blue-800 space-y-2">
               <p><strong>Recherche :</strong> Utilisez la barre de recherche sur la carte ou les filtres ci-dessus</p>

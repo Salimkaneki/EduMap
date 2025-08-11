@@ -6,7 +6,7 @@ import type { Establishment, SearchFilters as SearchFiltersType } from '@/types/
 import { Prefecture } from '@/types/types';
 
 // Dynamic import to avoid window not defined
-const InteractiveMap = dynamic(() => import('@/components/InteractiveMap'), {
+const InteractiveMap = dynamic(() => import('@/components/map/SimpleMap'), {
   ssr: false,
   loading: () => (
     <div className="h-[400px] bg-gray-100 flex items-center justify-center">
@@ -67,7 +67,7 @@ export default function SearchPage() {
         <InteractiveMap 
           establishments={establishments}
           filters={appliedFilters}
-          isLoading={!isClient}
+          // isLoading={!isClient}
         />
       )}
     </div>
