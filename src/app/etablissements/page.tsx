@@ -29,6 +29,8 @@ import {
 } from "./_services/etablissementService";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import router from "next/dist/shared/lib/router/router";
+import { useRouter } from "next/navigation";
 
 type ViewMode = "grid" | "map";
 
@@ -174,9 +176,11 @@ export default function EtablissementsPage() {
     setFilters({ page: 1, per_page: 20 });
   };
 
+  const router = useRouter();
   // Gestion de la vue détails
   const handleViewDetails = (id: number) => {
-    window.open(`/etablissements/${id}`);
+    // navigate to details page
+    router.push(`/etablissements/${id}`);
   };
 
   // Gestion de la vue sur carte

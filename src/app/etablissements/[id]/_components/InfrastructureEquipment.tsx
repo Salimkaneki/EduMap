@@ -2,14 +2,18 @@
 
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Zap,
-  Droplets,
-  Building2,
+import { 
+  Wifi, 
+  Zap, 
+  Droplets, 
+  Utensils, 
+  BookOpen,
+  Building,
+  Laptop,
+  Lightbulb,
   CheckCircle,
   XCircle,
-  Car,
-  ShieldCheck,
+  AlertCircle
 } from "lucide-react";
 import { Etablissement } from "../../_model/etablissement";
 
@@ -17,162 +21,194 @@ interface InfrastructureEquipmentProps {
   etablissement: Etablissement;
 }
 
-export default function InfrastructureEquipment({
-  etablissement,
-}: InfrastructureEquipmentProps) {
-  const getInfrastructureScore = () => {
-    const infrastructure = etablissement.infrastructure;
-    if (!infrastructure) return 0;
+export default function InfrastructureEquipment({ etablissement }: InfrastructureEquipmentProps) {
+  const infrastructure = etablissement.infrastructure;
+  const equipement = etablissement.equipement;
 
-    const totalSalles =
-      infrastructure.sommedenb_salles_classes_dur +
-      infrastructure.sommedenb_salles_classes_banco +
-      infrastructure.sommedenb_salles_classes_autre;
+  if (!infrastructure && !equipement) {
+    return (
+      <Card className="p-6">
+        <div className="text-center text-gray-500">
+          <Building className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+          <h3 className="text-lg font-medium mb-2">Aucune donnée d'infrastructure</h3>
+          <p className="text-sm">Les informations sur l'infrastructure ne sont pas disponibles.</p>
+        </div>
+      </Card>
+    );
+  }
 
-    if (totalSalles === 0) return 0;
-    if (totalSalles >= 10) return 3;
-    if (totalSalles >= 5) return 2;
-    return 1;
-  };
-
-  const getEquipmentScore = () => {
-    const equipement = etablissement.equipement;
-    if (!equipement) return 0;
-
-    let score = 0;
-    if (equipement.existe_elect) score++;
-    if (equipement.eau) score++;
-    if (equipement.existe_latrine_fonct) score++;
-    if (equipement.acces_toute_saison) score++;
-
-    return Math.ceil((score * 3) / 4); // Convertit en score sur 3
-  };
-
-  const infrastructureItems = [
+  // Services disponibles (basés sur le modèle Equipement)
+  const services = [
     {
-      icon: Building2,
-      label: "Salles Durables",
-      value: etablissement.infrastructure?.sommedenb_salles_classes_dur || 0,
-      color: "text-green-600 bg-green-50 border-green-200",
-    },
-    {
-      icon: Building2,
-      label: "Salles Banco",
-      value: etablissement.infrastructure?.sommedenb_salles_classes_banco || 0,
-      color: "text-yellow-600 bg-yellow-50 border-yellow-200",
-    },
-    {
-      icon: Building2,
-      label: "Autres Salles",
-      value: etablissement.infrastructure?.sommedenb_salles_classes_autre || 0,
-      color: "text-orange-600 bg-orange-50 border-orange-200",
-    },
-  ];
-
-  const equipmentItems = [
-    {
+      name: "Électricité",
+      available: equipement?.existe_elect || false,
       icon: Zap,
-      label: "Électricité",
-      status: etablissement.equipement?.existe_elect || false,
-      color: "text-yellow-600",
+      color: equipement?.existe_elect ? "text-yellow-600" : "text-gray-400",
+      bgColor: equipement?.existe_elect ? "bg-yellow-50" : "bg-gray-50",
+      status: equipement?.existe_elect ? "Disponible" : "Non disponible"
     },
     {
+      name: "Eau courante",
+      available: equipement?.eau || false,
       icon: Droplets,
-      label: "Eau",
-      status: etablissement.equipement?.eau || false,
-      color: "text-blue-600",
+      color: equipement?.eau ? "text-blue-600" : "text-gray-400",
+      bgColor: equipement?.eau ? "bg-blue-50" : "bg-gray-50",
+      status: equipement?.eau ? "Disponible" : "Non disponible"
     },
     {
-      icon: ShieldCheck,
-      label: "Latrines Fonct.",
-      status: etablissement.equipement?.existe_latrine_fonct || false,
-      color: "text-purple-600",
+      name: "Latrines",
+      available: equipement?.existe_latrine || false,
+      icon: Building,
+      color: equipement?.existe_latrine ? "text-green-600" : "text-gray-400",
+      bgColor: equipement?.existe_latrine ? "bg-green-50" : "bg-gray-50",
+      status: equipement?.existe_latrine ? "Disponible" : "Non disponible"
     },
     {
-      icon: Car,
-      label: "Accès Toute Saison",
-      status: etablissement.equipement?.acces_toute_saison || false,
-      color: "text-indigo-600",
+      name: "Latrines fonctionnelles",
+      available: equipement?.existe_latrine_fonct || false,
+      icon: CheckCircle,
+      color: equipement?.existe_latrine_fonct ? "text-emerald-600" : "text-gray-400",
+      bgColor: equipement?.existe_latrine_fonct ? "bg-emerald-50" : "bg-gray-50",
+      status: equipement?.existe_latrine_fonct ? "Fonctionnelles" : "Non fonctionnelles"
     },
+    {
+      name: "Accès toute saison",
+      available: equipement?.acces_toute_saison || false,
+      icon: AlertCircle,
+      color: equipement?.acces_toute_saison ? "text-indigo-600" : "text-gray-400",
+      bgColor: equipement?.acces_toute_saison ? "bg-indigo-50" : "bg-gray-50",
+      status: equipement?.acces_toute_saison ? "Accessible" : "Accès limité"
+    }
   ];
+
+  // Salles de classe
+  const classrooms = [
+    {
+      name: "Salles durables",
+      count: infrastructure?.sommedenb_salles_classes_dur || 0,
+      icon: Building,
+      color: "text-green-600",
+      bgColor: "bg-green-50",
+      description: "Construction solide"
+    },
+    {
+      name: "Salles banco",
+      count: infrastructure?.sommedenb_salles_classes_banco || 0,
+      icon: Building,
+      color: "text-yellow-600",
+      bgColor: "bg-yellow-50",
+      description: "Construction traditionnelle"
+    },
+    {
+      name: "Autres salles",
+      count: infrastructure?.sommedenb_salles_classes_autre || 0,
+      icon: Building,
+      color: "text-orange-600",
+      bgColor: "bg-orange-50",
+      description: "Autres types"
+    }
+  ];
+
+  const totalClassrooms = classrooms.reduce((sum, room) => sum + room.count, 0);
+  const availableServices = services.filter(s => s.available).length;
+
+  const getStatusIcon = (available: boolean) => {
+    if (available) return CheckCircle;
+    return XCircle;
+  };
+
+  const getStatusColor = (available: boolean) => {
+    if (available) return "text-green-600";
+    return "text-red-600";
+  };
 
   return (
-    <div className="space-y-8">
-      {/* Infrastructure */}
-      <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 border border-indigo-100 shadow-xl">
+    <div className="space-y-6">
+      {/* Services essentiels */}
+      <Card className="p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-indigo-900 flex items-center">
-            🏗️ Infrastructure
-          </h2>
-          <Badge className="bg-indigo-100 text-indigo-800 border-indigo-200 px-4 py-2">
-            Score: {getInfrastructureScore()}/3
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+            <Lightbulb className="h-5 w-5 text-blue-600 mr-2" />
+            Services essentiels
+          </h3>
+          <Badge variant={availableServices >= 3 ? "default" : "secondary"}>
+            {availableServices}/5 disponibles
           </Badge>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {infrastructureItems.map((item, index) => {
-            const Icon = item.icon;
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {services.map((service, index) => {
+            const Icon = service.icon;
+            const StatusIcon = getStatusIcon(service.available);
+            
             return (
-              <Card
+              <div
                 key={index}
-                className={`${item.color} border-2 p-6 transition-all duration-300 hover:scale-105 hover:shadow-lg`}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium opacity-80">
-                      {item.label}
-                    </p>
-                    <p className="text-3xl font-bold">{item.value}</p>
-                  </div>
-                  <Icon className="h-8 w-8 opacity-60" />
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Équipements */}
-      <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 border border-indigo-100 shadow-xl">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-indigo-900 flex items-center">
-            ⚡ Équipements
-          </h2>
-          <Badge className="bg-indigo-100 text-indigo-800 border-indigo-200 px-4 py-2">
-            Score: {getEquipmentScore()}/3
-          </Badge>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {equipmentItems.map((item, index) => {
-            const Icon = item.icon;
-            const StatusIcon = item.status ? CheckCircle : XCircle;
-            return (
-              <Card
-                key={index}
-                className={`p-6 border-2 transition-all duration-300 hover:scale-105 hover:shadow-lg ${
-                  item.status
-                    ? "bg-green-50 border-green-200 text-green-800"
-                    : "bg-red-50 border-red-200 text-red-800"
-                }`}
+                className={`${service.bgColor} border rounded-lg p-4 transition-all duration-200 hover:shadow-md`}
               >
                 <div className="flex items-center justify-between mb-3">
-                  <Icon className={`h-6 w-6 ${item.color}`} />
-                  <StatusIcon
-                    className={`h-5 w-5 ${
-                      item.status ? "text-green-600" : "text-red-600"
-                    }`}
-                  />
+                  <Icon className={`h-6 w-6 ${service.color}`} />
+                  <StatusIcon className={`h-5 w-5 ${getStatusColor(service.available)}`} />
                 </div>
-                <p className="text-sm font-medium">{item.label}</p>
-                <p className="text-xs opacity-75 mt-1">
-                  {item.status ? "Disponible" : "Non disponible"}
+                
+                <h4 className="font-medium text-gray-900 mb-1">{service.name}</h4>
+                <p className={`text-sm font-medium ${
+                  service.available ? "text-green-600" : "text-red-600"
+                }`}>
+                  {service.status || "Non spécifié"}
                 </p>
-              </Card>
+              </div>
             );
           })}
         </div>
-      </div>
+      </Card>
+
+      {/* Salles de classe */}
+      <Card className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+            <Building className="h-5 w-5 text-green-600 mr-2" />
+            Salles de classe
+          </h3>
+          <Badge variant="default">
+            {totalClassrooms} au total
+          </Badge>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          {classrooms.map((room, index) => {
+            const Icon = room.icon;
+            const percentage = totalClassrooms > 0 ? (room.count / totalClassrooms) * 100 : 0;
+            
+            return (
+              <div
+                key={index}
+                className={`${room.bgColor} border rounded-lg p-4 transition-all duration-200 hover:shadow-md`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <Icon className={`h-5 w-5 ${room.color}`} />
+                  <span className="text-xs font-medium text-gray-500">
+                    {percentage.toFixed(0)}%
+                  </span>
+                </div>
+                
+                <div className="mb-3">
+                  <p className="text-2xl font-bold text-gray-900">{room.count}</p>
+                  <p className="text-sm font-medium text-gray-600">{room.name}</p>
+                  <p className="text-xs text-gray-500">{room.description}</p>
+                </div>
+                
+                <div className="bg-white/60 rounded-full h-2">
+                  <div 
+                    className={`h-2 rounded-full ${room.color.replace('text-', 'bg-').replace('-600', '-400')}`}
+                    style={{ width: `${percentage}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Card>
     </div>
   );
 }

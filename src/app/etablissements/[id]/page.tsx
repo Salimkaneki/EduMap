@@ -51,8 +51,10 @@ export default function EtablissementDetailPage() {
     if (!etablissement)
       return { totalEleves: 0, totalEnseignants: 0, totalSalles: 0 };
 
-    const totalEleves = etablissement.effectif?.tot || 0;
-    const totalEnseignants = etablissement.effectif?.total_ense || 0;
+    const totalEleves =
+      etablissement.effectif?.sommedenb_eff_f +
+        etablissement.effectif?.sommedenb_eff_g|| 0;
+    const totalEnseignants = etablissement.effectif?.sommedenb_ens_f + etablissement.effectif?.sommedenb_ens_h || 0;
     const totalSalles =
       (etablissement.infrastructure?.sommedenb_salles_classes_dur || 0) +
       (etablissement.infrastructure?.sommedenb_salles_classes_banco || 0) +
@@ -75,10 +77,10 @@ export default function EtablissementDetailPage() {
     return (
       <>
         <Header />
-        <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center">
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center space-y-4">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-indigo-500 border-t-transparent mx-auto"></div>
-            <p className="text-indigo-600 text-lg font-medium">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-300 border-t-gray-900 mx-auto"></div>
+            <p className="text-gray-600 text-lg font-medium">
               Chargement des détails...
             </p>
           </div>
@@ -92,10 +94,10 @@ export default function EtablissementDetailPage() {
     return (
       <>
         <Header />
-        <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center">
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center space-y-6 max-w-md mx-4">
-            <div className="text-red-500 text-6xl">❌</div>
-            <h1 className="text-2xl font-bold text-gray-800">
+            <div className="text-gray-400 text-6xl">❌</div>
+            <h1 className="text-2xl font-bold text-gray-900">
               Établissement introuvable
             </h1>
             <p className="text-gray-600">
@@ -116,16 +118,9 @@ export default function EtablissementDetailPage() {
     <>
       <Header />
 
-      {/* Background avec motif */}
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-        <div
-          className="absolute inset-0 opacity-5"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%234F46E5' fill-opacity='0.1'%3E%3Cpath d='M50 50c13.8 0 25-11.2 25-25S63.8 0 50 0 25 11.2 25 25s11.2 25 25 25zm25 0c0-13.8 11.2-25 25-25s25 11.2 25 25-11.2 25-25 25-25-11.2-25-25z'/%3E%3C/g%3E%3C/svg%3E")`,
-          }}
-        />
-
-        <div className="relative container mx-auto px-4 py-12 space-y-12">
+      {/* Background simple et épuré */}
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto px-4 py-8 space-y-8">
           {/* Section Hero */}
           <HeroSection
             etablissement={etablissement}
@@ -136,9 +131,9 @@ export default function EtablissementDetailPage() {
           />
 
           {/* Grille principale */}
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
             {/* Colonne principale */}
-            <div className="xl:col-span-2 space-y-8">
+            <div className="xl:col-span-2 space-y-6">
               {/* Statistiques détaillées */}
               <SchoolStats etablissement={etablissement} />
 
@@ -147,7 +142,7 @@ export default function EtablissementDetailPage() {
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-8">
+            <div className="space-y-6">
               {/* Carte de localisation */}
               <LocationMap etablissement={etablissement} />
 

@@ -1,17 +1,18 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Heart,
-  Share2,
-  MapPin,
-  Phone,
-  Mail,
+import { 
+  Share2, 
+  Download, 
+  Calendar,
+  Clock,
+  Info,
   ExternalLink,
-  ArrowLeft,
+  FileText,
+  MapPin,
+  Building2
 } from "lucide-react";
-import Link from "next/link";
 import { Etablissement } from "../../_model/etablissement";
 
 interface ActionsSectionProps {
@@ -23,177 +24,224 @@ export default function ActionsSection({ etablissement }: ActionsSectionProps) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: etablissement.nom_etablissement,
-          text: `Découvrez ${etablissement.nom_etablissement} sur EduMap`,
+          title: `${etablissement.nom_etablissement} - EduMap`,
+          text: `Découvrez les informations de ${etablissement.nom_etablissement}`,
           url: window.location.href,
         });
       } catch (error) {
-        console.log("Erreur lors du partage:", error);
+        console.log('Partage annulé');
       }
     } else {
-      // Fallback pour les navigateurs qui ne supportent pas Web Share API
+      // Fallback pour les navigateurs qui ne supportent pas l'API de partage
       navigator.clipboard.writeText(window.location.href);
-      alert("Lien copié dans le presse-papiers!");
+      alert('Lien copié dans le presse-papier !');
     }
   };
 
-  const handleFavorite = () => {
-    // Logique pour ajouter aux favoris
-    const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
-    const isAlreadyFavorite = favorites.some(
-      (fav: any) => fav.id === etablissement.id
-    );
-
-    if (isAlreadyFavorite) {
-      const newFavorites = favorites.filter(
-        (fav: any) => fav.id !== etablissement.id
-      );
-      localStorage.setItem("favorites", JSON.stringify(newFavorites));
-      alert("Retiré des favoris!");
-    } else {
-      favorites.push({
-        id: etablissement.id,
+  const handleDownload = () => {
+    // Créer un objet avec les données de l'établissement
+    const data = {
+      etablissement: {
         nom: etablissement.nom_etablissement,
-        region: etablissement.localisation.region,
-      });
-      localStorage.setItem("favorites", JSON.stringify(favorites));
-      alert("Ajouté aux favoris!");
-    }
+        code: etablissement.code_etablissement,
+        coordonnees: {
+          latitude: etablissement.latitude,
+          longitude: etablissement.longitude
+        },
+        localisation: etablissement.localisation,
+        milieu: etablissement.milieu?.libelle_type_milieu,
+        statut: etablissement.statut?.libelle_type_statut_etab,
+        systeme: etablissement.systeme?.libelle_type_systeme,
+        effectifs: etablissement.effectif,
+        infrastructure: etablissement.infrastructure,
+        equipement: etablissement.equipement
+      },
+      exportDate: new Date().toISOString(),
+      source: 'EduMap'
+    };
+
+    // Créer et télécharger le fichier JSON
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `etablissement-${etablissement.code_etablissement}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
-  const openInMaps = () => {
-    const lat = parseFloat(etablissement.latitude);
-    const lng = parseFloat(etablissement.longitude);
-
-    if (!isNaN(lat) && !isNaN(lng)) {
-      const url = `https://www.google.com/maps?q=${lat},${lng}`;
-      window.open(url, "_blank");
-    }
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'Non spécifié';
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
   return (
     <div className="space-y-6">
-      {/* Navigation de retour */}
-      <div className="flex items-center justify-between">
-        <Link href="/etablissements">
-          <Button
-            variant="outline"
-            className="border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:border-indigo-300 transition-all duration-300"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Retour à la liste
-          </Button>
-        </Link>
-
-        <div className="flex items-center gap-2">
-          <Badge className="bg-indigo-100 text-indigo-800 border-indigo-200 px-3 py-1">
-            ID: {etablissement.id}
-          </Badge>
-          <Badge className="bg-indigo-100 text-indigo-800 border-indigo-200 px-3 py-1">
-            Code: {etablissement.code_etablissement}
-          </Badge>
+      {/* Actions rapides */}
+      <Card className="p-6">
+        <div className="flex items-center mb-6">
+          <Share2 className="h-5 w-5 text-blue-600 mr-2" />
+          <h3 className="text-lg font-semibold text-gray-900">Actions rapides</h3>
         </div>
-      </div>
-
-      {/* Actions principales */}
-      <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 border border-indigo-100 shadow-xl">
-        <h2 className="text-2xl font-bold text-indigo-900 mb-6 flex items-center">
-          🎯 Actions
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Button
-            onClick={handleFavorite}
-            className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white border-0 h-14 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg"
-          >
-            <Heart className="h-5 w-5 mr-2" />
-            Favoris
-          </Button>
-
-          <Button
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <button
             onClick={handleShare}
-            className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0 h-14 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg"
+            className="flex items-center justify-center p-4 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-all duration-200 group"
           >
-            <Share2 className="h-5 w-5 mr-2" />
-            Partager
-          </Button>
-
-          <Button
-            onClick={openInMaps}
-            className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white border-0 h-14 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg"
+            <Share2 className="h-5 w-5 text-blue-600 mr-3 group-hover:scale-110 transition-transform" />
+            <div className="text-left">
+              <p className="font-medium text-blue-900">Partager</p>
+              <p className="text-sm text-blue-700">Partager cet établissement</p>
+            </div>
+          </button>
+          
+          <button
+            onClick={handleDownload}
+            className="flex items-center justify-center p-4 bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg transition-all duration-200 group"
           >
-            <MapPin className="h-5 w-5 mr-2" />
-            Voir sur Maps
-          </Button>
-
-          <Link href={`/etablissements/${etablissement.id}/contact`}>
-            <Button className="w-full bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 text-white border-0 h-14 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg">
-              <Phone className="h-5 w-5 mr-2" />
-              Contact
-            </Button>
-          </Link>
+            <Download className="h-5 w-5 text-green-600 mr-3 group-hover:scale-110 transition-transform" />
+            <div className="text-left">
+              <p className="font-medium text-green-900">Télécharger</p>
+              <p className="text-sm text-green-700">Exporter les données</p>
+            </div>
+          </button>
         </div>
-      </div>
+      </Card>
 
-      {/* Informations complémentaires */}
-      <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 border border-indigo-100 shadow-xl">
-        <h2 className="text-2xl font-bold text-indigo-900 mb-6 flex items-center">
-          📋 Informations
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <div className="p-4 bg-indigo-50 rounded-2xl border border-indigo-200">
-              <h3 className="font-semibold text-indigo-800 mb-2">
-                Localisation Administrative
-              </h3>
-              <div className="space-y-2 text-sm text-indigo-600">
-                <p>
-                  <strong>Région:</strong> {etablissement.localisation.region}
-                </p>
-                <p>
-                  <strong>Préfecture:</strong>{" "}
-                  {etablissement.localisation.prefecture}
-                </p>
-                <p>
-                  <strong>Canton:</strong>{" "}
-                  {etablissement.localisation.canton_village_autonome}
-                </p>
-                <p>
-                  <strong>Commune:</strong>{" "}
-                  {etablissement.localisation.commune_etab || "Non spécifiée"}
-                </p>
+      {/* Informations système */}
+      <Card className="p-6">
+        <div className="flex items-center mb-6">
+          <Info className="h-5 w-5 text-gray-600 mr-2" />
+          <h3 className="text-lg font-semibold text-gray-900">Informations système</h3>
+        </div>
+        
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex items-center mb-2">
+                <FileText className="h-4 w-4 text-gray-600 mr-2" />
+                <span className="text-sm font-medium text-gray-900">Code établissement</span>
               </div>
+              <p className="font-mono text-sm bg-white px-2 py-1 rounded border">
+                {etablissement.code_etablissement}
+              </p>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex items-center mb-2">
+                <Building2 className="h-4 w-4 text-gray-600 mr-2" />
+                <span className="text-sm font-medium text-gray-900">Type d'établissement</span>
+              </div>
+              <Badge variant="outline" className="text-xs">
+                {etablissement.milieu?.libelle_type_milieu || 'Non spécifié'}
+              </Badge>
             </div>
           </div>
-
-          <div className="space-y-4">
-            <div className="p-4 bg-indigo-50 rounded-2xl border border-indigo-200">
-              <h3 className="font-semibold text-indigo-800 mb-2">
-                Caractéristiques
-              </h3>
-              <div className="space-y-2 text-sm text-indigo-600">
-                <p>
-                  <strong>Statut:</strong>{" "}
-                  {etablissement.statut.libelle_type_statut_etab}
-                </p>
-                <p>
-                  <strong>Système:</strong>{" "}
-                  {etablissement.systeme.libelle_type_systeme}
-                </p>
-                <p>
-                  <strong>Milieu:</strong>{" "}
-                  {etablissement.milieu.libelle_type_milieu}
-                </p>
-                <p>
-                  <strong>Année:</strong>{" "}
-                  {etablissement.annee.libelle_type_annee}
-                </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex items-center mb-2">
+                <Info className="h-4 w-4 text-gray-600 mr-2" />
+                <span className="text-sm font-medium text-gray-900">Statut</span>
               </div>
+              <Badge variant="secondary" className="text-xs">
+                {etablissement.statut?.libelle_type_statut_etab || 'Non spécifié'}
+              </Badge>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex items-center mb-2">
+                <Calendar className="h-4 w-4 text-gray-600 mr-2" />
+                <span className="text-sm font-medium text-gray-900">Système</span>
+              </div>
+              <Badge variant="outline" className="text-xs">
+                {etablissement.systeme?.libelle_type_systeme || 'Non spécifié'}
+              </Badge>
             </div>
           </div>
         </div>
-      </div>
+      </Card>
+
+      {/* Métadonnées */}
+      <Card className="p-6">
+        <div className="flex items-center mb-6">
+          <Clock className="h-5 w-5 text-gray-600 mr-2" />
+          <h3 className="text-lg font-semibold text-gray-900">Dernières mises à jour</h3>
+        </div>
+        
+        <div className="space-y-3 text-sm">
+          <div className="flex justify-between items-center py-2 border-b border-gray-100">
+            <span className="text-gray-600">Établissement:</span>
+            <span className="font-medium">{formatDate(etablissement.updated_at)}</span>
+          </div>
+          
+          {etablissement.effectif?.updated_at && (
+            <div className="flex justify-between items-center py-2 border-b border-gray-100">
+              <span className="text-gray-600">Effectifs:</span>
+              <span className="font-medium">{formatDate(etablissement.effectif.updated_at)}</span>
+            </div>
+          )}
+          
+          {etablissement.infrastructure?.updated_at && (
+            <div className="flex justify-between items-center py-2 border-b border-gray-100">
+              <span className="text-gray-600">Infrastructure:</span>
+              <span className="font-medium">{formatDate(etablissement.infrastructure.updated_at)}</span>
+            </div>
+          )}
+          
+          {etablissement.equipement?.updated_at && (
+            <div className="flex justify-between items-center py-2">
+              <span className="text-gray-600">Équipement:</span>
+              <span className="font-medium">{formatDate(etablissement.equipement.updated_at)}</span>
+            </div>
+          )}
+        </div>
+        
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <p className="text-xs text-gray-500 text-center">
+            Données fournies par EduMap • Dernière synchronisation: {new Date().toLocaleDateString('fr-FR')}
+          </p>
+        </div>
+      </Card>
+
+      {/* Liens utiles */}
+      <Card className="p-6">
+        <div className="flex items-center mb-6">
+          <ExternalLink className="h-5 w-5 text-purple-600 mr-2" />
+          <h3 className="text-lg font-semibold text-gray-900">Liens utiles</h3>
+        </div>
+        
+        <div className="space-y-3">
+          <a
+            href="/etablissements"
+            className="flex items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors group"
+          >
+            <Building2 className="h-4 w-4 text-gray-600 mr-3" />
+            <span className="text-sm font-medium text-gray-900 group-hover:text-blue-600">
+              Retour à la liste des établissements
+            </span>
+            <ExternalLink className="h-3 w-3 text-gray-400 ml-auto" />
+          </a>
+          
+          <a
+            href="/map"
+            className="flex items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors group"
+          >
+            <MapPin className="h-4 w-4 text-gray-600 mr-3" />
+            <span className="text-sm font-medium text-gray-900 group-hover:text-blue-600">
+              Voir sur la carte générale
+            </span>
+            <ExternalLink className="h-3 w-3 text-gray-400 ml-auto" />
+          </a>
+        </div>
+      </Card>
     </div>
   );
 }
