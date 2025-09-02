@@ -82,11 +82,11 @@ export default function ModernEtablissementCard({
     <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-md hover:-translate-y-1 bg-white overflow-hidden">
       <CardContent className="p-0">
         {/* Header avec image de fond et badges */}
-        <div className="relative h-48 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 overflow-hidden">
+        <div className="relative rounded-lg h-48 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 overflow-hidden">
           {/* Pattern overlay */}
-          <div className="absolute inset-0 bg-black/20"></div>
+          <div className="absolute inset-0 bg-black/20 rounded-lg"></div>
           <div
-            className="absolute inset-0 opacity-10"
+            className="absolute inset-0 opacity-10 rounded-lg"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Ccircle cx='20' cy='20' r='4'/%3E%3Ccircle cx='40' cy='40' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
             }}
@@ -201,7 +201,7 @@ export default function ModernEtablissementCard({
                 </div>
               </div>
               <p className="text-xl font-bold text-gray-900">
-                {totalEnseignants}
+                {totalEnseignants ? totalEnseignants : "N/A"}
               </p>
               <p className="text-xs text-gray-600">Enseignants</p>
             </div>

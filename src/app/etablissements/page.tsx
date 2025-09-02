@@ -27,6 +27,8 @@ import {
   getFilterOptions,
   getMapData,
 } from "./_services/etablissementService";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 type ViewMode = "grid" | "map";
 
@@ -174,7 +176,7 @@ export default function EtablissementsPage() {
 
   // Gestion de la vue détails
   const handleViewDetails = (id: number) => {
-    window.location.href = `/etablissement/${id}`;
+    window.open(`/etablissements/${id}`, "_blank");
   };
 
   // Gestion de la vue sur carte
@@ -193,77 +195,83 @@ export default function EtablissementsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header moderne avec gradient */}
-      <PageHeader totalEstablishments={pagination.total} />
+    <div>
+      <Header />
 
-      {/* Barre de recherche moderne */}
-      <ModernSearchBar
-        filterOptions={filterOptions}
-        filters={filters}
-        onFiltersChange={handleFiltersChange}
-        onReset={handleResetFilters}
-        isLoading={isLoading}
-        className="sticky top-0 z-40"
-      />
+      <div className="min-h-screen bg-gray-50">
+        {/* Header moderne avec gradient */}
+        <PageHeader totalEstablishments={pagination.total} />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Contrôles de vue et résultats */}
-        <ViewControls
-          viewMode={viewMode}
-          onViewModeChange={setViewMode}
-          hasActiveFilters={hasActiveFilters}
-          onResetFilters={handleResetFilters}
+        {/* Barre de recherche moderne */}
+        <ModernSearchBar
+          filterOptions={filterOptions}
           filters={filters}
-          totalResults={pagination.total}
+          onFiltersChange={handleFiltersChange}
+          onReset={handleResetFilters}
+          isLoading={isLoading}
+          className="sticky top-0 z-40"
         />
 
-        {/* Vue Carte */}
-        {viewMode === "map" ? (
-          <Card className="h-[calc(100vh-200px)] shadow-xl border-0">
-            <CardContent className="p-0 h-full">
-              <GoogleMapComponent
-                etablissements={mapData}
-                filters={filters}
-                pagination={mapPagination}
-                onEtablissementSelect={(etab) => handleViewDetails(etab.id)}
-                onPageChange={handleMapPageChange}
-              />
-            </CardContent>
-          </Card>
-        ) : (
-          /* Vue Grille */
-          <div>
-            {/* État de chargement */}
-            {isLoading && <LoadingState />}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Contrôles de vue et résultats */}
+          <ViewControls
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            hasActiveFilters={hasActiveFilters}
+            onResetFilters={handleResetFilters}
+            filters={filters}
+            totalResults={pagination.total}
+          />
 
-            {/* État d'erreur */}
-            {error && (
-              <ErrorState
-                error={error}
-                onRetry={() => loadEtablissements(filters)}
-              />
-            )}
+          {/* Vue Carte */}
+          {viewMode === "map" ? (
+            <Card className="h-[calc(100vh-200px)] shadow-xl border-0">
+              <CardContent className="p-0 h-full">
+                <GoogleMapComponent
+                  etablissements={mapData}
+                  filters={filters}
+                  pagination={mapPagination}
+                  onEtablissementSelect={(etab) => handleViewDetails(etab.id)}
+                  onPageChange={handleMapPageChange}
+                />
+              </CardContent>
+            </Card>
+          ) : (
+            /* Vue Grille */
+            <div>
+              {/* État de chargement */}
+              {isLoading && <LoadingState />}
 
-            {/* Grille des établissements */}
-            {!isLoading && !error && etablissements.length > 0 && (
-              <EtablissementGrid
-                etablissements={etablissements}
-                pagination={pagination}
-                onViewDetails={handleViewDetails}
-                onViewOnMap={handleViewOnMap}
-                onPageChange={handlePageChange}
-                isLoading={isLoading}
-              />
-            )}
+              {/* État d'erreur */}
+              {error && (
+                <ErrorState
+                  error={error}
+                  onRetry={() => loadEtablissements(filters)}
+                />
+              )}
 
-            {/* État vide */}
-            {!isLoading && !error && etablissements.length === 0 && (
-              <EmptyState onReset={handleResetFilters} />
-            )}
-          </div>
-        )}
+              {/* Grille des établissements */}
+              {!isLoading && !error && etablissements.length > 0 && (
+                <EtablissementGrid
+                  etablissements={etablissements}
+                  pagination={pagination}
+                  onViewDetails={handleViewDetails}
+                  onViewOnMap={handleViewOnMap}
+                  onPageChange={handlePageChange}
+                  isLoading={isLoading}
+                />
+              )}
+
+              {/* État vide */}
+              {!isLoading && !error && etablissements.length === 0 && (
+                <EmptyState onReset={handleResetFilters} />
+              )}
+            </div>
+          )}
+        </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

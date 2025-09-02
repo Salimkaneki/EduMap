@@ -108,29 +108,6 @@ export async function getFilterOptions(): Promise<FilterOptions> {
 }
 
 /**
- * Récupère les détails d'un établissement
- */
-export async function getEtablissementById(id: number): Promise<Etablissement> {
-  try {
-    const response = await fetch(`${API_BASE_URL}/etablissements/${id}`, {
-      cache: "no-store",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Erreur API: ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Erreur lors de la récupération de l'établissement:", error);
-    throw new Error("Impossible de récupérer les détails de l'établissement");
-  }
-}
-
-/**
  * Récupère les données pour la carte interactive avec filtres et pagination
  * Utilise les mêmes endpoints que la vue grille pour maintenir la cohérence
  */
@@ -228,6 +205,29 @@ export async function getNearbyEtablissements(
   } catch (error) {
     console.error("Erreur lors de la recherche de proximité:", error);
     throw new Error("Impossible de trouver les établissements à proximité");
+  }
+}
+
+/**
+ * Récupère un établissement par son ID
+ */
+export async function getEtablissementById(id: number): Promise<Etablissement> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/etablissements/${id}`, {
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erreur API: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Erreur lors de la récupération de l'établissement:", error);
+    throw new Error("Impossible de récupérer l'établissement");
   }
 }
 

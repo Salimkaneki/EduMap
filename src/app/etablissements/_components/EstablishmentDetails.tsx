@@ -53,7 +53,7 @@ const EstablishmentDetails: React.FC<EstablishmentDetailsProps> = ({ establishme
       </div>
       <div className="mt-3 flex space-x-2">
         <a 
-          href={`/etablissement/${establishment.id}`}
+          href={`/etablissements/${establishment.id}`}
           className="flex-1 bg-black text-white px-3 py-1 text-xs rounded-full hover:bg-gray-800 transition-colors text-center"
           aria-label={`Voir les détails de ${establishment.nom_etablissement}`}
         >
