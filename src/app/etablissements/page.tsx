@@ -176,7 +176,7 @@ export default function EtablissementsPage() {
 
   // Gestion de la vue détails
   const handleViewDetails = (id: number) => {
-    window.open(`/etablissements/${id}`, "_blank");
+    window.open(`/etablissements/${id}`);
   };
 
   // Gestion de la vue sur carte
