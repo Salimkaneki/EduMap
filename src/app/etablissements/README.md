@@ -1,168 +1,138 @@
-# 🏫 EduMap - Page des Établissements Scolaires
+# Architecture des Composants - Page Établissements
 
-Cette page permet d'explorer et rechercher parmi les **15 216 établissements scolaires du Togo** avec une interface moderne et intuitive.
+## Vue d'ensemble
 
-## 🚀 Fonctionnalités
+La page des établissements a été refactorisée pour être plus modulaire et maintenable. La vue "liste" a été supprimée pour ne garder que les vues "grille" et "carte".
 
-### 📊 Affichage des données
+## Structure des Composants
 
-- **Vue Grille** : Cartes d'établissements avec informations essentielles
-- **Vue Liste** : Affichage compact pour une navigation rapide
-- **Vue Carte** : Visualisation géographique interactive avec Leaflet
+### Composants Principaux
 
-### 🔍 Système de filtrage avancé
+#### `page.tsx`
 
-- **Recherche textuelle** : Par nom d'établissement
-- **Filtres géographiques** : Région, préfecture
-- **Filtres d'établissement** : Statut (Public, Privé...), Milieu (Urbain, Rural), Système (Préscolaire, Primaire...)
-- **Filtres d'infrastructure** : Électricité, eau potable, latrines
+- **Rôle** : Composant principal orchestrant toute la logique de la page
+- **Responsabilités** :
+  - Gestion des états (établissements, filtres, pagination)
+  - Appels API via les services
+  - Coordination entre tous les composants
 
-### 🗺️ Carte interactive
+#### `PageHeader.tsx`
 
-- **Marqueurs colorés** par statut d'établissement
-- **Popups détaillées** avec informations clés
-- **Légende** pour identifier les types d'établissements
-- **Filtrage en temps réel** sur la carte
+- **Rôle** : En-tête de page avec gradient et statistiques
+- **Props** :
+  - `totalEstablishments: number` - Nombre total d'établissements
 
-### 📱 Interface responsive
+#### `ModernSearchBar.tsx`
 
-- **Design moderne** avec Tailwind CSS
-- **Navigation intuitive** entre les vues
-- **Pagination efficace** pour de gros volumes de données
-- **États de chargement** et gestion d'erreurs
+- **Rôle** : Barre de recherche avancée avec filtres
+- **Props** :
+  - `filterOptions` - Options disponibles pour les filtres
+  - `filters` - Filtres actuellement actifs
+  - `onFiltersChange` - Callback pour modification des filtres
+  - `onReset` - Callback pour réinitialiser les filtres
+  - `isLoading` - État de chargement
 
-## 🏗️ Architecture
+#### `ViewControls.tsx`
 
-### 📁 Structure des dossiers
+- **Rôle** : Contrôles pour changer de vue et afficher les résultats
+- **Props** :
+  - `viewMode` - Mode de vue actuel ("grid" | "map")
+  - `onViewModeChange` - Callback pour changer de vue
+  - `hasActiveFilters` - Indique si des filtres sont actifs
+  - `onResetFilters` - Callback pour réinitialiser
+  - `filters` - Filtres actuels
+  - `totalResults` - Nombre total de résultats
+
+### Composants de Contenu
+
+#### `EtablissementGrid.tsx`
+
+- **Rôle** : Grille des établissements avec pagination
+- **Props** :
+  - `etablissements` - Liste des établissements
+  - `pagination` - Informations de pagination
+  - `onViewDetails` - Callback pour voir les détails
+  - `onViewOnMap` - Callback pour voir sur la carte
+  - `onPageChange` - Callback pour changer de page
+  - `isLoading` - État de chargement
+
+#### `ModernEtablissementCard.tsx`
+
+- **Rôle** : Carte moderne pour afficher un établissement
+- **Features** : Design moderne avec gradients et animations
+
+#### `GoogleMapComponent.tsx`
+
+- **Rôle** : Composant de carte interactive Google Maps
+- **Features** : Marqueurs personnalisés, popups, filtrage
+
+### Composants d'États
+
+#### `LoadingState.tsx`
+
+- **Rôle** : Affichage de l'état de chargement
+- **Features** : Spinner avec message
+
+#### `ErrorState.tsx`
+
+- **Rôle** : Affichage des erreurs
+- **Props** :
+  - `error: string` - Message d'erreur
+  - `onRetry: () => void` - Callback pour réessayer
+
+#### `EmptyState.tsx`
+
+- **Rôle** : Affichage quand aucun résultat n'est trouvé
+- **Props** :
+  - `onReset: () => void` - Callback pour réinitialiser
+
+#### `Pagination.tsx`
+
+- **Rôle** : Composant de pagination
+- **Features** : Navigation entre les pages
+
+## Types de Vue
+
+### Vue Grille (`grid`)
+
+- Affichage en grille responsive (1-3 colonnes selon l'écran)
+- Cartes modernes avec effets hover
+- Pagination en bas de page
+
+### Vue Carte (`map`)
+
+- Carte Google Maps plein écran
+- Marqueurs interactifs
+- Popups avec informations de base
+
+## Avantages de cette Architecture
+
+1. **Modularité** : Chaque composant a une responsabilité claire
+2. **Réutilisabilité** : Les composants peuvent être réutilisés ailleurs
+3. **Maintenabilité** : Plus facile de modifier un composant spécifique
+4. **Testabilité** : Chaque composant peut être testé individuellement
+5. **Performance** : Possibilité d'optimiser chaque composant séparément
+
+## Flux de Données
 
 ```
-src/app/ets/
-├── _model/
-│   └── etablissement.ts        # Types TypeScript
-├── _services/
-│   └── etablissementService.ts # Actions serveur & API calls
-├── _components/
-│   ├── EtablissementCard.tsx   # Carte d'établissement
-│   ├── EtablissementMap.tsx    # Composant carte Leaflet
-│   ├── FilterPanel.tsx         # Panneau de filtres
-│   ├── Pagination.tsx          # Composant pagination
-│   └── StatsDisplay.tsx        # Affichage des statistiques
-├── page.tsx                    # Page principale
-└── styles.css                  # Styles spécifiques
+page.tsx (état global)
+├── PageHeader (affichage)
+├── ModernSearchBar (filtres)
+├── ViewControls (mode de vue)
+└── Contenu conditionnel
+    ├── GoogleMapComponent (vue carte)
+    └── Vue grille
+        ├── LoadingState
+        ├── ErrorState
+        ├── EtablissementGrid
+        └── EmptyState
 ```
 
-### 🔧 Technologies utilisées
+## Notes Techniques
 
-- **Next.js 15** avec App Router
-- **TypeScript** pour la sécurité des types
-- **Tailwind CSS** pour le styling
-- **Leaflet** + **react-leaflet** pour la cartographie
-- **Lucide React** pour les icônes
-- **Server Actions** pour les appels API
-
-## 🌍 API Integration
-
-### Endpoints utilisés
-
-- `GET /api/etablissements` - Liste paginée
-- `GET /api/etablissements/search` - Recherche avec filtres
-- `GET /api/etablissements/filter-options` - Options de filtrage
-- `GET /api/etablissements/map` - Données pour la carte
-
-### 📡 Gestion des données
-
-- **Cache intelligent** : Force-cache pour les options statiques, no-store pour les données dynamiques
-- **Gestion d'erreurs** : Affichage d'états d'erreur avec possibilité de retry
-- **Loading states** : Indicateurs visuels pendant les chargements
-
-## 🎨 Design System
-
-### 🏷️ Codes couleur par statut
-
-- **Public** : Vert (`#10b981`)
-- **Privé Laïc** : Bleu (`#3b82f6`)
-- **Privé Catholique** : Violet (`#8b5cf6`)
-- **Privé Protestant** : Orange (`#f59e0b`)
-- **Privé Islamique** : Cyan (`#06b6d4`)
-- **Communautaire** : Rouge (`#ef4444`)
-
-### 🏃 Performances
-
-- **Lazy loading** des données de carte
-- **Pagination** pour limiter les requêtes
-- **Debouncing** sur la recherche textuelle
-- **Memoization** des composants coûteux
-
-## 🔄 États de l'application
-
-### 📊 Gestion des états
-
-- **Loading** : Affichage de loaders pendant les requêtes
-- **Error** : Messages d'erreur avec boutons de retry
-- **Empty** : État vide avec actions suggérées
-- **Success** : Affichage des données avec statistiques
-
-### 🔍 Filtres actifs
-
-- **Badges** affichant les filtres appliqués
-- **Compteur** de filtres actifs
-- **Reset rapide** de tous les filtres
-
-## 🚀 Utilisation
-
-### Navigation
-
-1. **Sélection de vue** : Utilisez les boutons Grille/Liste/Carte
-2. **Filtrage** : Utilisez le panneau de filtres à gauche
-3. **Recherche** : Tapez dans la barre de recherche et appuyez sur Entrée
-4. **Pagination** : Naviguez entre les pages en bas
-
-### Interactions carte
-
-1. **Zoom** : Utilisez la molette ou les boutons +/-
-2. **Markers** : Cliquez sur un marqueur pour voir les détails
-3. **Légende** : Consultez la légende en haut à droite
-4. **Filtres** : Les filtres s'appliquent automatiquement sur la carte
-
-## 🔧 Configuration
-
-### Variables d'environnement
-
-```env
-API_BASE_URL=https://edumap-api.bestwebapp.tech/api
-```
-
-### Constantes importantes
-
-- **Total établissements** : 15 116
-- **Régions** : 7 (CENTRALE, GRAND LOME, KARA, MARITIME, PLATEAUX EST, PLATEAUX OUEST, SAVANES)
-- **Préfectures** : 39
-- **Per page par défaut** : 20
-- **Per page maximum** : 100
-
-## 🎯 Prochaines améliorations
-
-- [ ] Export PDF/Excel des résultats
-- [ ] Favoris utilisateur
-- [ ] Comparaison d'établissements
-- [ ] Recherche géographique (rayon)
-- [ ] Statistiques avancées par région
-- [ ] Mode hors-ligne avec cache
-- [ ] Partage de liens filtrés
-
-## 🐛 Résolution de problèmes
-
-### Carte ne s'affiche pas
-
-- Vérifiez que Leaflet CSS est bien importé
-- Contrôlez la console pour les erreurs JavaScript
-
-### Données ne se chargent pas
-
-- Vérifiez la connexion internet
-- Contrôlez l'URL de l'API dans la console réseau
-
-### Filtres ne fonctionnent pas
-
-- Utilisez le bouton "Réinitialiser" pour remettre à zéro
-- Vérifiez que les paramètres de filtrage sont valides
+- Suppression de la vue "liste" pour simplifier l'interface
+- Utilisation de TypeScript strict pour la sécurité des types
+- Composants "use client" pour l'interactivité côté client
+- Intégration Google Maps avec marqueurs personnalisés
+- Design responsive avec Tailwind CSS

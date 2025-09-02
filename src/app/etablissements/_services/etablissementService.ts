@@ -8,7 +8,7 @@ import {
   MapEtablissement,
 } from "../_model/etablissement";
 
-const API_BASE_URL = "https://edumap-api.bestwebapp.tech/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://edumap-api.bestwebapp.tech/api";
 
 /**
  * Récupère la liste des établissements avec pagination
