@@ -116,30 +116,214 @@
   }
 }
 
-/* Styles personnalisés pour Leaflet */
+/* Styles personnalisés pour EduMap */
 @layer components {
-  .custom-marker {
-    background: transparent !important;
-    border: none !important;
+  /* Animations et transitions */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
   }
 
-  .leaflet-popup-content-wrapper {
-    border-radius: 8px;
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Classes utilitaires pour le line-clamping */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+
+  /* Styles pour les cartes avec hover effects */
+  .card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+      0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Styles pour les boutons avec gradients */
+  .btn-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transition: all 0.3s ease;
+  }
+
+  .btn-gradient-primary:hover {
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    transform: translateY(-1px);
+  }
+
+  /* Styles pour la barre de recherche */
+  .search-input {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+  }
+
+  .search-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  /* Styles pour les badges avec couleurs personnalisées */
+  .badge-public {
+    background-color: #d1fae5;
+    color: #047857;
+    border-color: #a7f3d0;
+  }
+
+  .badge-prive {
+    background-color: #dbeafe;
+    color: #1e40af;
+    border-color: #93c5fd;
+  }
+
+  .badge-catholique {
+    background-color: #ede9fe;
+    color: #7c2d12;
+    border-color: #c4b5fd;
+  }
+
+  .badge-protestant {
+    background-color: #fed7aa;
+    color: #ea580c;
+    border-color: #fdba74;
+  }
+
+  .badge-islamique {
+    background-color: #cffafe;
+    color: #0e7490;
+    border-color: #67e8f9;
+  }
+
+  .badge-communautaire {
+    background-color: #fecaca;
+    color: #dc2626;
+    border-color: #fca5a5;
+  }
+
+  /* Overlay patterns pour les cartes */
+  .pattern-overlay {
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      rgba(255, 255, 255, 0.15) 1px,
+      transparent 0
+    );
+    background-size: 20px 20px;
+  }
+
+  /* Styles pour les dropdowns modernes */
+  .dropdown-modern {
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+      0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(10px);
+  }
+
+  .dropdown-item {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    color: #374151;
+    transition: background-color 0.15s;
+    cursor: pointer;
+  }
+
+  .dropdown-item:hover {
+    background-color: #f9fafb;
+  }
+
+  .dropdown-item:first-child {
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+  }
+
+  .dropdown-item:last-child {
+    border-bottom-left-radius: 0.75rem;
+    border-bottom-right-radius: 0.75rem;
+  }
+
+  /* Styles pour les statistiques */
+  .stat-card {
+    background-color: white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    border: 1px solid #f3f4f6;
+    transition: box-shadow 0.15s;
+  }
+
+  .stat-card:hover {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
       0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
 
-  .leaflet-popup-tip {
-    border-radius: 2px;
+  /* Animations de chargement */
+  .skeleton {
+    background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
   }
 
-  .leaflet-control-zoom a {
-    border-radius: 4px;
-    color: #374151;
+  @keyframes loading {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
   }
 
-  .leaflet-control-zoom a:hover {
-    background-color: #f3f4f6;
-    color: #111827;
+  /* Styles pour les filtres actifs */
+  .filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    background-color: #dbeafe;
+    color: #1e40af;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .filter-tag-remove {
+    margin-left: 0.25rem;
+    padding: 0.125rem;
+    border-radius: 9999px;
+    transition: background-color 0.15s;
+    cursor: pointer;
+  }
+
+  .filter-tag-remove:hover {
+    background-color: #bfdbfe;
   }
 }
