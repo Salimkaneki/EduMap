@@ -8,7 +8,9 @@ import {
   MapEtablissement,
 } from "../_model/etablissement";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://edumap-api.bestwebapp.tech/api";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "https://edumap-api.bestwebapp.tech/api";
 
 /**
  * Récupère la liste des établissements avec pagination
@@ -129,26 +131,49 @@ export async function getEtablissementById(id: number): Promise<Etablissement> {
 }
 
 /**
- * Récupère les données pour la carte interactive
+ * Récupère les données pour la carte interactive avec filtres et pagination
+ * Utilise les mêmes endpoints que la vue grille pour maintenir la cohérence
  */
-export async function getMapData(): Promise<MapEtablissement[]> {
+export async function getMapData(
+  filters?: SearchFilters,
+  page: number = 1,
+  perPage: number = 100 // Plus d'éléments par défaut pour la carte
+): Promise<{
+  data: MapEtablissement[];
+  pagination: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
+}> {
   try {
-    const response = await fetch(`${API_BASE_URL}/etablissements/map`, {
-      cache: "force-cache",
-      next: { revalidate: 1800 }, // Cache pour 30 minutes
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    let response: EtablissementResponse;
 
-    if (!response.ok) {
-      throw new Error(`Erreur API: ${response.status}`);
+    // Utiliser les mêmes critères que la vue grille
+    if (
+      filters &&
+      Object.keys(filters).some(
+        (key) =>
+          key !== "page" &&
+          key !== "per_page" &&
+          filters[key as keyof SearchFilters]
+      )
+    ) {
+      // Si des filtres sont actifs, utiliser searchEtablissements
+      const searchFilters = {
+        ...filters,
+        page,
+        per_page: perPage,
+      };
+      response = await searchEtablissements(searchFilters);
+    } else {
+      // Sinon, utiliser getEtablissements
+      response = await getEtablissements(page, perPage);
     }
 
-    const data = await response.json();
-
     // Transformer les données pour la carte
-    return data.map((item: Etablissement) => ({
+    const mapData = response.data.map((item: Etablissement) => ({
       id: item.id,
       nom_etablissement: item.nom_etablissement,
       latitude: parseFloat(item.latitude),
@@ -158,6 +183,16 @@ export async function getMapData(): Promise<MapEtablissement[]> {
       region: item.localisation?.region || "Non spécifié",
       prefecture: item.localisation?.prefecture || "Non spécifié",
     }));
+
+    return {
+      data: mapData,
+      pagination: {
+        current_page: response.current_page,
+        last_page: response.last_page,
+        per_page: response.per_page,
+        total: response.total,
+      },
+    };
   } catch (error) {
     console.error(
       "Erreur lors de la récupération des données de carte:",

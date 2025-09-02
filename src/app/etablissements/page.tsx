@@ -34,6 +34,12 @@ export default function EtablissementsPage() {
   // États
   const [etablissements, setEtablissements] = useState<Etablissement[]>([]);
   const [mapData, setMapData] = useState<MapEtablissement[]>([]);
+  const [mapPagination, setMapPagination] = useState({
+    current_page: 1,
+    last_page: 1,
+    per_page: 100,
+    total: 0,
+  });
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
     regions: [],
     prefectures: [],
@@ -73,21 +79,26 @@ export default function EtablissementsPage() {
     loadFilterOptions();
   }, []);
 
-  // Chargement des données de carte
-  useEffect(() => {
-    const loadMapData = async () => {
+  // Chargement des données de carte avec filtres
+  const loadMapData = useCallback(
+    async (searchFilters: SearchFilters, mapPage: number = 1) => {
       try {
-        const data = await getMapData();
-        setMapData(data);
+        const result = await getMapData(searchFilters, mapPage, 100);
+        setMapData(result.data);
+        setMapPagination(result.pagination);
       } catch (err) {
         console.error("Erreur lors du chargement des données de carte:", err);
       }
-    };
+    },
+    []
+  );
 
+  // Effet pour charger les données de carte quand les filtres changent
+  useEffect(() => {
     if (viewMode === "map") {
-      loadMapData();
+      loadMapData(filters, 1);
     }
-  }, [viewMode]);
+  }, [viewMode, filters, loadMapData]);
 
   // Fonction pour charger les établissements
   const loadEtablissements = useCallback(
@@ -151,6 +162,11 @@ export default function EtablissementsPage() {
     setFilters((prev) => ({ ...prev, page }));
   };
 
+  // Gestion du changement de page pour la carte
+  const handleMapPageChange = (page: number) => {
+    loadMapData(filters, page);
+  };
+
   // Réinitialisation des filtres
   const handleResetFilters = () => {
     setFilters({ page: 1, per_page: 20 });
@@ -209,7 +225,9 @@ export default function EtablissementsPage() {
               <GoogleMapComponent
                 etablissements={mapData}
                 filters={filters}
+                pagination={mapPagination}
                 onEtablissementSelect={(etab) => handleViewDetails(etab.id)}
+                onPageChange={handleMapPageChange}
               />
             </CardContent>
           </Card>

@@ -7,11 +7,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Building, X, Navigation, Maximize2 } from "lucide-react";
+import Pagination from "./Pagination";
 
 interface GoogleMapProps {
   etablissements: MapEtablissement[];
   filters: SearchFilters;
+  pagination?: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
   onEtablissementSelect?: (etablissement: MapEtablissement) => void;
+  onPageChange?: (page: number) => void;
   className?: string;
 }
 
@@ -400,13 +408,37 @@ const GoogleMapComponent: React.FC<GoogleMapProps> = (props) => {
   const zoom = 7;
 
   return (
-    <div className={`h-full w-full ${props.className || ""}`}>
-      <Wrapper
-        apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ""}
-        render={Render}
-      >
-        <MapComponent {...props} center={center} zoom={zoom} />
-      </Wrapper>
+    <div className={`h-full w-full flex flex-col ${props.className || ""}`}>
+      <div className="flex-1">
+        <Wrapper
+          apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ""}
+          render={Render}
+        >
+          <MapComponent {...props} center={center} zoom={zoom} />
+        </Wrapper>
+      </div>
+
+      {/* Pagination pour la carte */}
+      {props.pagination &&
+        props.onPageChange &&
+        props.pagination.last_page > 1 && (
+          <div className="bg-white border-t border-gray-200 p-4">
+            <div className="flex justify-between items-center mb-2">
+              <p className="text-sm text-gray-600">
+                Page {props.pagination.current_page} sur{" "}
+                {props.pagination.last_page} • Affichage de{" "}
+                {props.etablissements.length} établissement(s) sur{" "}
+                {props.pagination.total}
+              </p>
+            </div>
+            <Pagination
+              currentPage={props.pagination.current_page}
+              totalPages={props.pagination.last_page}
+              onPageChange={props.onPageChange}
+              isLoading={false}
+            />
+          </div>
+        )}
     </div>
   );
 };
