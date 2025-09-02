@@ -2,11 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-
+/* Styles Leaflet */
 
 @layer base {
   :root {
-
     --background: 0 0% 100%;
 
     --foreground: 0 0% 3.9%;
@@ -55,10 +54,9 @@
 
     --chart-5: 27 87% 67%;
 
-    --radius: 0.5rem
+    --radius: 0.5rem;
   }
   .dark {
-
     --background: 0 0% 3.9%;
 
     --foreground: 0 0% 98%;
@@ -105,11 +103,9 @@
 
     --chart-4: 280 65% 60%;
 
-    --chart-5: 340 75% 55%
+    --chart-5: 340 75% 55%;
   }
 }
-
-
 
 @layer base {
   * {
@@ -117,5 +113,33 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Styles personnalisés pour Leaflet */
+@layer components {
+  .custom-marker {
+    background: transparent !important;
+    border: none !important;
+  }
+
+  .leaflet-popup-content-wrapper {
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .leaflet-popup-tip {
+    border-radius: 2px;
+  }
+
+  .leaflet-control-zoom a {
+    border-radius: 4px;
+    color: #374151;
+  }
+
+  .leaflet-control-zoom a:hover {
+    background-color: #f3f4f6;
+    color: #111827;
   }
 }
