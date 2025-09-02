@@ -3,13 +3,9 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Wifi, 
   Zap, 
   Droplets, 
-  Utensils, 
-  BookOpen,
   Building,
-  Laptop,
   Lightbulb,
   CheckCircle,
   XCircle,

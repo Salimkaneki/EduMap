@@ -14,6 +14,7 @@ import {
   Building2
 } from "lucide-react";
 import { Etablissement } from "../../_model/etablissement";
+import Link from "next/link";
 
 interface ActionsSectionProps {
   etablissement: Etablissement;
@@ -29,7 +30,7 @@ export default function ActionsSection({ etablissement }: ActionsSectionProps) {
           url: window.location.href,
         });
       } catch (error) {
-        console.log('Partage annulé');
+        console.log('Partage annulé', error);
       }
     } else {
       // Fallback pour les navigateurs qui ne supportent pas l'API de partage
@@ -219,7 +220,7 @@ export default function ActionsSection({ etablissement }: ActionsSectionProps) {
         </div>
         
         <div className="space-y-3">
-          <a
+          <Link
             href="/etablissements"
             className="flex items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors group"
           >
@@ -228,9 +229,9 @@ export default function ActionsSection({ etablissement }: ActionsSectionProps) {
               Retour à la liste des établissements
             </span>
             <ExternalLink className="h-3 w-3 text-gray-400 ml-auto" />
-          </a>
-          
-          <a
+          </Link>
+
+          <Link
             href="/map"
             className="flex items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors group"
           >
@@ -239,7 +240,7 @@ export default function ActionsSection({ etablissement }: ActionsSectionProps) {
               Voir sur la carte générale
             </span>
             <ExternalLink className="h-3 w-3 text-gray-400 ml-auto" />
-          </a>
+          </Link>
         </div>
       </Card>
     </div>

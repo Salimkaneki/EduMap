@@ -12,7 +12,6 @@ import HeroSection from "./_components/HeroSection";
 import SchoolStats from "./_components/SchoolStats";
 import InfrastructureEquipment from "./_components/InfrastructureEquipment";
 import LocationMap from "./_components/LocationMap";
-import ActionsSection from "./_components/ActionsSection";
 
 export default function EtablissementDetailPage() {
   const params = useParams();

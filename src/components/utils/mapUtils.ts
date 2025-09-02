@@ -5,7 +5,6 @@ import type { Establishment, MapFilters } from '@/components/types/index';
 // Configuration des icônes Leaflet
 export const fixLeafletIcon = () => {
   if (typeof window !== 'undefined') {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   delete ((L.Icon.Default.prototype as any)._getIconUrl);
     L.Icon.Default.mergeOptions({
       iconRetinaUrl: '/leaflet/marker-icon-2x.png',

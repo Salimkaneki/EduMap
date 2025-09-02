@@ -1,7 +1,6 @@
 "use client";
 
 import { TrendingUp, MapPin, Filter, LayoutGrid } from "lucide-react";
-import { THEME_CLASSES } from "@/lib/theme";
 
 interface PageHeaderProps {
   totalEstablishments: number;
