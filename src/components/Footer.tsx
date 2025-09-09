@@ -60,12 +60,12 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/map" className="text-base text-gray-600 hover:text-gray-900">
-                  Carte
+                <Link href="/etablissements" className="text-base text-gray-600 hover:text-gray-900">
+                  Etablissements
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-base text-gray-600 hover:text-gray-900">
+                <Link href="#" className="text-base text-gray-600 hover:text-gray-900">
                   Contact
                 </Link>
               </li>
@@ -78,22 +78,22 @@ const Footer = () => {
             </h3>
             <ul className="mt-4 space-y-3">
               <li>
-                <Link href="/schools/primary" className="text-base text-gray-600 hover:text-gray-900">
+                <Link href="#" className="text-base text-gray-600 hover:text-gray-900">
                   Primaire
                 </Link>
               </li>
               <li>
-                <Link href="/schools/secondary" className="text-base text-gray-600 hover:text-gray-900">
+                <Link href="#" className="text-base text-gray-600 hover:text-gray-900">
                   Secondaire
                 </Link>
               </li>
               <li>
-                <Link href="/schools/university" className="text-base text-gray-600 hover:text-gray-900">
+                <Link href="#" className="text-base text-gray-600 hover:text-gray-900">
                   Supérieur
                 </Link>
               </li>
               <li>
-                <Link href="/schools/compare" className="text-base text-gray-600 hover:text-gray-900">
+                <Link href="#" className="text-base text-gray-600 hover:text-gray-900">
                   Comparaison
                 </Link>
               </li>
@@ -106,22 +106,22 @@ const Footer = () => {
             </h3>
             <ul className="mt-4 space-y-3">
               <li>
-                <Link href="/faq" className="text-base text-gray-600 hover:text-gray-900">
+              <Link href="#" className="text-base text-gray-600 hover:text-gray-900">
                   FAQ
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="text-base text-gray-600 hover:text-gray-900">
+                <Link href="#" className="text-base text-gray-600 hover:text-gray-900">
                   Conditions d&apos;utilisation
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="text-base text-gray-600 hover:text-gray-900">
+                <Link href="#" className="text-base text-gray-600 hover:text-gray-900">
                   Politique de confidentialité
                 </Link>
               </li>
               <li>
-                <Link href="/support" className="text-base text-gray-600 hover:text-gray-900">
+                <Link href="#" className="text-base text-gray-600 hover:text-gray-900">
                   Support
                 </Link>
               </li>
