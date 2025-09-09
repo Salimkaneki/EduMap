@@ -1,726 +1,386 @@
-"use client";
+'use client'
 import React, { useState } from "react";
-import { Search, MapPin, Building2, Phone, Globe, Users, Zap, Droplets, Calendar, Edit3, Trash2, Plus, BarChart3, Settings } from "lucide-react";
+import {
+  Search,
+  Filter,
+  MapPin,
+  Users,
+  Building,
+  Zap,
+  Droplets,
+  Home,
+  ChevronDown,
+  ChevronUp,
+  Eye,
+  Download,
+  Plus,
+  School,
+  ArrowUpDown
+} from "lucide-react";
 
-type School = {
-  id: string;
+// Définition du type School
+interface School {
+  id: number;
   name: string;
-  type: string;
-  location: string;
-  region: string;
-  electricity: boolean;
-  latrines: boolean;
-  water: boolean;
-  allSeasonAccess: boolean;
-  classrooms: number;
-  teachers: number;
+  address: string;
   students: number;
-  contact: string;
-  email: string;
-  mapUrl?: string;
-  establishedYear?: number;
-  description?: string;
-  lastInspection?: Date;
-  status: 'active' | 'inactive' | 'maintenance';
-  createdAt: Date;
-};
+  teachers: number;
+  classrooms: number;
+  electricity: boolean;
+  water: boolean;
+  sanitation: boolean;
+  status: string;
+  lastUpdate: string;
+}
 
-export default function SchoolManagementSystem() {
-  const [formData, setFormData] = useState<School>({
-    id: "",
-    name: "",
-    type: "Public",
-    location: "",
-    region: "",
-    electricity: false,
-    latrines: false,
+// Données fictives pour la démonstration
+const schoolsData: School[] = [
+  {
+    id: 1,
+    name: "Lycée Moderne d'Abidjan",
+    address: "Plateau, Abidjan",
+    students: 1245,
+    teachers: 42,
+    classrooms: 28,
+    electricity: true,
+    water: true,
+    sanitation: true,
+    status: "Public",
+    lastUpdate: "2023-10-15"
+  },
+  {
+    id: 2,
+    name: "Collège Saint Michel",
+    address: "Yopougon, Abidjan",
+    students: 876,
+    teachers: 32,
+    classrooms: 20,
+    electricity: true,
     water: false,
-    allSeasonAccess: false,
-    classrooms: 0,
-    teachers: 0,
-    students: 0,
-    contact: "",
-    email: "",
-    mapUrl: "",
-    establishedYear: new Date().getFullYear(),
-    description: "",
-    lastInspection: new Date(),
-    status: 'active',
-    createdAt: new Date(),
-  });
+    sanitation: true,
+    status: "Privé",
+    lastUpdate: "2023-09-22"
+  },
+  {
+    id: 3,
+    name: "École Primaire Les Poussins",
+    address: "Cocody, Abidjan",
+    students: 420,
+    teachers: 15,
+    classrooms: 12,
+    electricity: false,
+    water: true,
+    sanitation: false,
+    status: "Public",
+    lastUpdate: "2023-10-05"
+  },
+  {
+    id: 4,
+    name: "Groupe Scolaire Excellence",
+    address: "Koumassi, Abidjan",
+    students: 650,
+    teachers: 24,
+    classrooms: 18,
+    electricity: true,
+    water: true,
+    sanitation: true,
+    status: "Privé",
+    lastUpdate: "2023-10-18"
+  },
+  {
+    id: 5,
+    name: "École du Village",
+    address: "Bingerville",
+    students: 210,
+    teachers: 8,
+    classrooms: 6,
+    electricity: false,
+    water: false,
+    sanitation: true,
+    status: "Public",
+    lastUpdate: "2023-09-30"
+  },
+  {
+    id: 6,
+    name: "Institut Technique",
+    address: "Treichville, Abidjan",
+    students: 780,
+    teachers: 35,
+    classrooms: 22,
+    electricity: true,
+    water: true,
+    sanitation: true,
+    status: "Public",
+    lastUpdate: "2023-10-10"
+  },
+  {
+    id: 7,
+    name: "Collège Moderne",
+    address: "Adjamé, Abidjan",
+    students: 920,
+    teachers: 38,
+    classrooms: 24,
+    electricity: true,
+    water: false,
+    sanitation: true,
+    status: "Public",
+    lastUpdate: "2023-10-08"
+  },
+  {
+    id: 8,
+    name: "École Les Génies",
+    address: "Marcory, Abidjan",
+    students: 350,
+    teachers: 14,
+    classrooms: 10,
+    electricity: false,
+    water: true,
+    sanitation: false,
+    status: "Privé",
+    lastUpdate: "2023-09-28"
+  }
+];
 
-  const [schools, setSchools] = useState<School[]>([]);
+export default function SchoolsListPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState("all");
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [statusFilter, setStatusFilter] = useState("Tous");
+  const [sortField, setSortField] = useState<keyof School>("name");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 5;
 
-  const filteredSchools = schools.filter((school) => {
-    const matchesSearch = school.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         school.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         school.region.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = filterType === "all" || school.type === filterType;
-    const matchesStatus = filterStatus === "all" || school.status === filterStatus;
-    return matchesSearch && matchesType && matchesStatus;
-  });
-
-  const stats = {
-    total: schools.length,
-    active: schools.filter(s => s.status === 'active').length,
-    totalStudents: schools.reduce((sum, s) => sum + s.students, 0),
-    totalTeachers: schools.reduce((sum, s) => sum + s.teachers, 0),
-    infrastructureAvg: schools.length > 0 ? Math.round(
-      schools.reduce((sum, s) => {
-        const score = [s.electricity, s.latrines, s.water, s.allSeasonAccess].filter(Boolean).length;
-        return sum + (score / 4 * 100);
-      }, 0) / schools.length
-    ) : 0,
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value, type } = e.target;
-    if (type === "checkbox") {
-      const checked = (e.target as HTMLInputElement).checked;
-      setFormData((prev) => ({ ...prev, [name]: checked }));
-    } else if (type === "number") {
-      setFormData((prev) => ({ ...prev, [name]: Number(value) }));
-    } else if (type === "date") {
-      setFormData((prev) => ({ ...prev, [name]: new Date(value) }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const newSchool = {
-      ...formData,
-      id: editingId || `school_${Date.now()}`,
-      createdAt: editingId ? schools.find(s => s.id === editingId)?.createdAt || new Date() : new Date(),
-    };
-
-    if (editingId) {
-      setSchools(prev => prev.map(school => school.id === editingId ? newSchool : school));
-      setEditingId(null);
-    } else {
-      setSchools(prev => [...prev, newSchool]);
-    }
-
-    resetForm();
-  };
-
-  const resetForm = () => {
-    setFormData({
-      id: "",
-      name: "",
-      type: "Public",
-      location: "",
-      region: "",
-      electricity: false,
-      latrines: false,
-      water: false,
-      allSeasonAccess: false,
-      classrooms: 0,
-      teachers: 0,
-      students: 0,
-      contact: "",
-      email: "",
-      mapUrl: "",
-      establishedYear: new Date().getFullYear(),
-      description: "",
-      lastInspection: new Date(),
-      status: 'active',
-      createdAt: new Date(),
+  // Filtrer et trier les données
+  const filteredSchools = schoolsData
+    .filter(school => {
+      const matchesSearch = school.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           school.address.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === "Tous" || school.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => {
+      let aValue = a[sortField];
+      let bValue = b[sortField];
+      
+      if (typeof aValue === 'string') aValue = aValue.toLowerCase();
+      if (typeof bValue === 'string') bValue = bValue.toLowerCase();
+      
+      if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
+      return 0;
     });
-    setShowForm(false);
-  };
 
-  const handleEdit = (school: School) => {
-    setFormData(school);
-    setEditingId(school.id);
-    setShowForm(true);
-  };
+  // Pagination
+  const totalPages = Math.ceil(filteredSchools.length / itemsPerPage);
+  const paginatedSchools = filteredSchools.slice(
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
+  );
 
-  const handleDelete = (id: string) => {
-    if (confirm("Confirmer la suppression de cet établissement ?")) {
-      setSchools(prev => prev.filter(school => school.id !== id));
+  const handleSort = (field: keyof School) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
     }
   };
 
-  const getInfrastructureLevel = (school: School) => {
-    const features = [school.electricity, school.latrines, school.water, school.allSeasonAccess];
-    const score = features.filter(Boolean).length;
-    if (score === 4) return { level: 'Excellent', color: 'text-green-600', bg: 'bg-green-50' };
-    if (score >= 3) return { level: 'Bon', color: 'text-blue-600', bg: 'bg-blue-50' };
-    if (score >= 2) return { level: 'Moyen', color: 'text-yellow-600', bg: 'bg-yellow-50' };
-    return { level: 'Insuffisant', color: 'text-red-600', bg: 'bg-red-50' };
-  };
-
-  const getStatusConfig = (status: string) => {
-    switch (status) {
-      case 'active': return { label: 'Actif', color: 'text-green-700', bg: 'bg-green-100' };
-      case 'inactive': return { label: 'Inactif', color: 'text-red-700', bg: 'bg-red-100' };
-      case 'maintenance': return { label: 'Maintenance', color: 'text-orange-700', bg: 'bg-orange-100' };
-      default: return { label: status, color: 'text-gray-700', bg: 'bg-gray-100' };
-    }
+  const SortIcon = ({ field }: { field: keyof School }) => {
+    if (sortField !== field) return <ArrowUpDown size={14} className="ml-1 opacity-50" />;
+    return sortDirection === "asc" ? 
+      <ChevronUp size={14} className="ml-1" /> : 
+      <ChevronDown size={14} className="ml-1" />;
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-white p-6">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Building2 className="text-indigo-600" size={32} />
-            <div>
-              <h1 className="text-2xl font-semibold text-gray-900">Système de Gestion Scolaire</h1>
-              <p className="text-sm text-gray-500">Administration des établissements éducatifs</p>
-            </div>
+      <header className="mb-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-medium text-gray-900">Établissements Scolaires</h1>
+            <p className="text-gray-500 text-sm mt-1">
+              {filteredSchools.length} établissements trouvés
+            </p>
           </div>
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-              className="p-2 text-gray-400 hover:text-gray-600 transition"
-            >
-              <BarChart3 size={20} />
+          <div className="flex gap-2">
+            <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-gray-700 hover:bg-gray-200 transition text-sm">
+              <Download size={16} />
+              Exporter
             </button>
-            <button className="p-2 text-gray-400 hover:text-gray-600 transition">
-              <Settings size={20} />
-            </button>
-            <button
-              onClick={() => setShowForm(!showForm)}
-              className="flex items-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
-            >
-              <Plus size={18} />
-              <span>Nouvel établissement</span>
+            <button className="flex items-center gap-2 px-3 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition text-sm">
+              <Plus size={16} />
+              Nouveau
             </button>
           </div>
         </div>
       </header>
 
-      <div className="p-6">
-        {/* Statistiques */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-500">Établissements</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats.total}</p>
-              </div>
-              <Building2 className="text-indigo-500" size={24} />
-            </div>
+      {/* Filters and Search */}
+      <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            <input
+              type="text"
+              placeholder="Rechercher une école..."
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-500">Actifs</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats.active}</p>
-              </div>
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-500">Étudiants</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats.totalStudents.toLocaleString()}</p>
-              </div>
-              <Users className="text-blue-500" size={24} />
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-500">Enseignants</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats.totalTeachers.toLocaleString()}</p>
-              </div>
-              <Users className="text-green-500" size={24} />
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-500">Infrastructure</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats.infrastructureAvg}%</p>
-              </div>
-              <Zap className="text-yellow-500" size={24} />
-            </div>
-          </div>
-        </div>
-
-        {/* Formulaire */}
-        {showForm && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-gray-900">
-                {editingId ? "Modifier l'établissement" : "Nouvel établissement"}
-              </h2>
-              <button
-                onClick={resetForm}
-                className="text-gray-400 hover:text-gray-600 transition"
-              >
-                ✕
-              </button>
-            </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Informations générales */}
-              <div className="lg:col-span-2 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Nom de l'établissement *
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Type d'établissement
-                    </label>
-                    <select
-                      name="type"
-                      value={formData.type}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                    >
-                      <option value="Public">Public</option>
-                      <option value="Privé">Privé</option>
-                      <option value="Privé confessionnel">Privé confessionnel</option>
-                      <option value="Communautaire">Communautaire</option>
-                      <option value="Non spécifié">Non spécifié</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Localisation *
-                    </label>
-                    <input
-                      type="text"
-                      name="location"
-                      value={formData.location}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Région
-                    </label>
-                    <input
-                      type="text"
-                      name="region"
-                      value={formData.region}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Salles de classe
-                    </label>
-                    <input
-                      type="number"
-                      name="classrooms"
-                      value={formData.classrooms}
-                      onChange={handleChange}
-                      min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Enseignants
-                    </label>
-                    <input
-                      type="number"
-                      name="teachers"
-                      value={formData.teachers}
-                      onChange={handleChange}
-                      min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Étudiants
-                    </label>
-                    <input
-                      type="number"
-                      name="students"
-                      value={formData.students}
-                      onChange={handleChange}
-                      min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Téléphone
-                    </label>
-                    <input
-                      type="tel"
-                      name="contact"
-                      value={formData.contact}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description
-                  </label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                  />
-                </div>
-              </div>
-
-              {/* Informations complémentaires */}
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Statut
-                  </label>
-                  <select
-                    name="status"
-                    value={formData.status}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                  >
-                    <option value="active">Actif</option>
-                    <option value="inactive">Inactif</option>
-                    <option value="maintenance">En maintenance</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Année de création
-                  </label>
-                  <input
-                    type="number"
-                    name="establishedYear"
-                    value={formData.establishedYear}
-                    onChange={handleChange}
-                    min="1900"
-                    max={new Date().getFullYear()}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    URL Google Maps
-                  </label>
-                  <input
-                    type="url"
-                    name="mapUrl"
-                    value={formData.mapUrl}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Infrastructure disponible
-                  </label>
-                  <div className="space-y-3">
-                    <label className="flex items-center space-x-3">
-                      <input
-                        type="checkbox"
-                        name="electricity"
-                        checked={formData.electricity}
-                        onChange={handleChange}
-                        className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                      />
-                      <span className="text-sm text-gray-700">Électricité</span>
-                    </label>
-                    <label className="flex items-center space-x-3">
-                      <input
-                        type="checkbox"
-                        name="water"
-                        checked={formData.water}
-                        onChange={handleChange}
-                        className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                      />
-                      <span className="text-sm text-gray-700">Accès à l'eau potable</span>
-                    </label>
-                    <label className="flex items-center space-x-3">
-                      <input
-                        type="checkbox"
-                        name="latrines"
-                        checked={formData.latrines}
-                        onChange={handleChange}
-                        className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                      />
-                      <span className="text-sm text-gray-700">Installations sanitaires</span>
-                    </label>
-                    <label className="flex items-center space-x-3">
-                      <input
-                        type="checkbox"
-                        name="allSeasonAccess"
-                        checked={formData.allSeasonAccess}
-                        onChange={handleChange}
-                        className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                      />
-                      <span className="text-sm text-gray-700">Accès toutes saisons</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
-              <button
-                type="button"
-                onClick={resetForm}
-                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={handleSubmit}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
-              >
-                {editingId ? "Mettre à jour" : "Créer l'établissement"}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Filtres et recherche */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-              <input
-                type="text"
-                placeholder="Rechercher un établissement..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
+          <div className="flex gap-2">
             <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent text-sm"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
             >
-              <option value="all">Tous les types</option>
+              <option value="Tous">Tous les statuts</option>
               <option value="Public">Public</option>
               <option value="Privé">Privé</option>
-              <option value="Privé confessionnel">Privé confessionnel</option>
-              <option value="Communautaire">Communautaire</option>
             </select>
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <option value="all">Tous les statuts</option>
-              <option value="active">Actif</option>
-              <option value="inactive">Inactif</option>
-              <option value="maintenance">Maintenance</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Liste des établissements */}
-        {schools.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-            <Building2 className="mx-auto text-gray-300 mb-4" size={48} />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun établissement enregistré</h3>
-            <p className="text-gray-500 mb-6">Commencez par créer votre premier établissement scolaire.</p>
-            <button
-              onClick={() => setShowForm(true)}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
-            >
-              Créer un établissement
+            <button className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition text-sm">
+              <Filter size={16} />
+              Plus de filtres
             </button>
           </div>
-        ) : filteredSchools.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-            <Search className="mx-auto text-gray-300 mb-4" size={48} />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun résultat</h3>
-            <p className="text-gray-500">Aucun établissement ne correspond à vos critères de recherche.</p>
-          </div>
-        ) : (
-          <div className={viewMode === 'grid' ? "grid gap-6 lg:grid-cols-2 xl:grid-cols-3" : "space-y-4"}>
-            {filteredSchools.map((school) => {
-              const infrastructure = getInfrastructureLevel(school);
-              const statusConfig = getStatusConfig(school.status);
-              
-              return (
-                <div
-                  key={school.id}
-                  className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
-                >
-                  <div className="p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">{school.name}</h3>
-                        <div className="flex items-center space-x-2 mb-2">
-                          <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded">
-                            {school.type}
-                          </span>
-                          <span className={`px-2 py-1 text-xs font-medium rounded ${statusConfig.bg} ${statusConfig.color}`}>
-                            {statusConfig.label}
-                          </span>
-                        </div>
-                        <div className="flex items-center text-sm text-gray-600 mb-2">
-                          <MapPin size={14} className="mr-1" />
-                          {school.location}{school.region && `, ${school.region}`}
-                        </div>
-                      </div>
-                      <div className="flex space-x-1">
-                        <button
-                          onClick={() => handleEdit(school)}
-                          className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition"
-                        >
-                          <Edit3 size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(school.id)}
-                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </div>
+        </div>
+      </div>
 
-                    {/* Métriques */}
-                    <div className="grid grid-cols-3 gap-4 mb-4 text-center">
-                      <div className="p-3 bg-gray-50 rounded-lg">
-                        <p className="text-lg font-semibold text-gray-900">{school.classrooms}</p>
-                        <p className="text-xs text-gray-500">Salles</p>
-                      </div>
-                      <div className="p-3 bg-gray-50 rounded-lg">
-                        <p className="text-lg font-semibold text-gray-900">{school.teachers}</p>
-                        <p className="text-xs text-gray-500">Enseignants</p>
-                      </div>
-                      <div className="p-3 bg-gray-50 rounded-lg">
-                        <p className="text-lg font-semibold text-gray-900">{school.students}</p>
-                        <p className="text-xs text-gray-500">Étudiants</p>
-                      </div>
-                    </div>
-
-                    {/* Infrastructure */}
-                    <div className="mb-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-gray-700">Infrastructure</span>
-                        <span className={`text-xs font-medium px-2 py-1 rounded ${infrastructure.bg} ${infrastructure.color}`}>
-                          {infrastructure.level}
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div className={`flex items-center space-x-1 ${school.electricity ? 'text-green-600' : 'text-gray-400'}`}>
-                          <Zap size={12} />
-                          <span>Électricité</span>
-                        </div>
-                        <div className={`flex items-center space-x-1 ${school.water ? 'text-blue-600' : 'text-gray-400'}`}>
-                          <Droplets size={12} />
-                          <span>Eau</span>
-                        </div>
-                        <div className={`flex items-center space-x-1 ${school.latrines ? 'text-purple-600' : 'text-gray-400'}`}>
-                          <Building2 size={12} />
-                          <span>Sanitaires</span>
-                        </div>
-                        <div className={`flex items-center space-x-1 ${school.allSeasonAccess ? 'text-indigo-600' : 'text-gray-400'}`}>
-                          <Calendar size={12} />
-                          <span>Toute saison</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Informations de contact */}
-                    <div className="space-y-2 text-sm text-gray-600 mb-4">
-                      {school.contact && (
-                        <div className="flex items-center space-x-2">
-                          <Phone size={14} />
-                          <span>{school.contact}</span>
-                        </div>
-                      )}
-                      {school.email && (
-                        <div className="flex items-center space-x-2">
-                          <span className="text-gray-400">@</span>
-                          <span>{school.email}</span>
-                        </div>
-                      )}
-                      {school.mapUrl && (
-                        <a
-                          href={school.mapUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center space-x-2 text-indigo-600 hover:text-indigo-800 transition"
-                        >
-                          <Globe size={14} />
-                          <span>Localisation</span>
-                        </a>
-                      )}
-                    </div>
-
-                    {school.description && (
-                      <p className="text-sm text-gray-600 mb-4 p-3 bg-gray-50 rounded-lg">
-                        {school.description}
-                      </p>
-                    )}
-
-                    {/* Méta-informations */}
-                    <div className="flex items-center justify-between text-xs text-gray-400 pt-4 border-t border-gray-100">
-                      <span>
-                        {school.establishedYear && `Créé en ${school.establishedYear}`}
-                      </span>
-                      <span>
-                        Enregistré le {school.createdAt.toLocaleDateString('fr-FR')}
-                      </span>
+      {/* Schools Table */}
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <table className="w-full">
+          <thead>
+            <tr className="bg-gray-50 text-left text-sm text-gray-500 font-medium">
+              <th 
+                className="py-3 px-4 cursor-pointer hover:bg-gray-100"
+                onClick={() => handleSort("name")}
+              >
+                <div className="flex items-center">
+                  École <SortIcon field="name" />
+                </div>
+              </th>
+              <th 
+                className="py-3 px-4 cursor-pointer hover:bg-gray-100"
+                onClick={() => handleSort("students")}
+              >
+                <div className="flex items-center">
+                  Élèves <SortIcon field="students" />
+                </div>
+              </th>
+              <th className="py-3 px-4">Équipements</th>
+              <th 
+                className="py-3 px-4 cursor-pointer hover:bg-gray-100"
+                onClick={() => handleSort("status")}
+              >
+                <div className="flex items-center">
+                  Statut <SortIcon field="status" />
+                </div>
+              </th>
+              <th 
+                className="py-3 px-4 cursor-pointer hover:bg-gray-100"
+                onClick={() => handleSort("lastUpdate")}
+              >
+                <div className="flex items-center">
+                  Mise à jour <SortIcon field="lastUpdate" />
+                </div>
+              </th>
+              <th className="py-3 px-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {paginatedSchools.map((school) => (
+              <tr key={school.id} className="hover:bg-gray-50 transition">
+                <td className="py-4 px-4">
+                  <div>
+                    <div className="font-medium text-gray-900">{school.name}</div>
+                    <div className="flex items-center text-sm text-gray-500 mt-1">
+                      <MapPin size={14} className="mr-1" />
+                      {school.address}
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                </td>
+                <td className="py-4 px-4">
+                  <div className="flex items-center gap-4">
+                    <div>
+                      <div className="flex items-center text-sm text-gray-700">
+                        <Users size={14} className="mr-1" />
+                        {school.students.toLocaleString()}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {school.teachers} enseignants
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td className="py-4 px-4">
+                  <div className="flex gap-2">
+                    <div className={`p-1.5 rounded ${school.electricity ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}`} title="Électricité">
+                      <Zap size={14} />
+                    </div>
+                    <div className={`p-1.5 rounded ${school.water ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-400'}`} title="Eau">
+                      <Droplets size={14} />
+                    </div>
+                    <div className={`p-1.5 rounded ${school.sanitation ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-400'}`} title="Sanitaires">
+                      <Home size={14} />
+                    </div>
+                  </div>
+                </td>
+                <td className="py-4 px-4">
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    school.status === "Public" 
+                      ? "bg-blue-100 text-blue-800" 
+                      : "bg-purple-100 text-purple-800"
+                  }`}>
+                    {school.status}
+                  </span>
+                </td>
+                <td className="py-4 px-4 text-sm text-gray-500">
+                  {new Date(school.lastUpdate).toLocaleDateString('fr-FR')}
+                </td>
+                <td className="py-4 px-4 text-right">
+                  <button className="p-1.5 text-gray-400 hover:text-gray-700 rounded hover:bg-gray-100 transition">
+                    <Eye size={16} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {paginatedSchools.length === 0 && (
+          <div className="text-center py-12">
+            <School size={48} className="mx-auto text-gray-300 mb-3" />
+            <p className="text-gray-500">Aucun établissement trouvé</p>
+            <p className="text-sm text-gray-400 mt-1">Essayez de modifier vos filtres de recherche</p>
           </div>
         )}
       </div>
+
+      {/* Pagination */}
+      {filteredSchools.length > 0 && (
+        <div className="flex justify-between items-center mt-6">
+          <p className="text-sm text-gray-500">
+            Affichage de {(page - 1) * itemsPerPage + 1} à {Math.min(page * itemsPerPage, filteredSchools.length)} sur {filteredSchools.length} établissements
+          </p>
+          <div className="flex gap-2">
+            <button
+              className="px-3 py-1.5 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              disabled={page === 1}
+              onClick={() => setPage(page - 1)}
+            >
+              Précédent
+            </button>
+            <button
+              className="px-3 py-1.5 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              disabled={page === totalPages}
+              onClick={() => setPage(page + 1)}
+            >
+              Suivant
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
