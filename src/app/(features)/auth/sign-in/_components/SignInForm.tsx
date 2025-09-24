@@ -1,19 +1,46 @@
 'use client'
 import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
+import { loginAdmin } from '../_services/authService';
+import { loginSchema, LoginFormData } from '../_models/validation';
 
-export default function LoginForm() {
+export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError,
+    clearErrors,
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
 
   const togglePasswordVisibility = (): void => {
     setShowPassword(!showPassword);
   };
 
-  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    console.log('Login attempt:', { email, password });
+  const onSubmit = async (data: LoginFormData) => {
+    setLoading(true);
+    clearErrors();
+
+    try {
+      const response = await loginAdmin(data);
+      // Handle success, e.g., store token, redirect
+      console.log('Login successful:', response);
+      // Redirect to dashboard
+      router.push('/dashboard');
+    } catch (err) {
+      setError('root', { message: 'Connexion échouée. Vérifiez vos identifiants.' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -23,7 +50,7 @@ export default function LoginForm() {
           Connectez-vous
         </h1>
         
-        <div className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Email Field */}
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
@@ -32,12 +59,12 @@ export default function LoginForm() {
             <input
               type="email"
               id="email"
-              value={email}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+              {...register('email')}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900"
               style={{ fontFamily: 'Poppins, sans-serif' }}
               placeholder="Entrez votre email"
             />
+            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
           </div>
 
           {/* Password Field */}
@@ -58,8 +85,7 @@ export default function LoginForm() {
               <input
                 type={showPassword ? 'text' : 'password'}
                 id="password"
-                value={password}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                {...register('password')}
                 className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900"
                 style={{ fontFamily: 'Poppins, sans-serif' }}
                 placeholder="Entrez votre mot de passe"
@@ -76,32 +102,21 @@ export default function LoginForm() {
                 )}
               </button>
             </div>
+            {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
           </div>
+
+          {errors.root && <p className="text-red-500 text-sm">{errors.root.message}</p>}
 
           {/* Submit Button */}
           <button
             type="submit"
-            onClick={handleSubmit}
-            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50"
             style={{ fontFamily: 'Poppins, sans-serif' }}
           >
-            Se connecter
+            {loading ? 'Connexion...' : 'Se connecter'}
           </button>
-
-          {/* Sign Up Link */}
-          <div className="text-center mt-6">
-            <span className="text-gray-600 text-sm" style={{ fontFamily: 'Poppins, sans-serif' }}>
-              Vous N&apos;avez Pas De Compte ?{' '}
-              <button
-                type="button"
-                className="text-blue-600 hover:text-blue-700 font-medium"
-                style={{ fontFamily: 'Poppins, sans-serif' }}
-              >
-                S&apos;inscrire ?
-              </button>
-            </span>
-          </div>
-        </div>
+        </form>
       </div>
     </div>
   );
