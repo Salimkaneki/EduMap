@@ -1,20 +1,23 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Home, Map, School, Plus, Edit, List, BarChart3, Users, Settings,
   FileText, Search, MapPin, Layers, Download, Upload,
-  HelpCircle, Bell, User, ChevronDown, ChevronRight
+  HelpCircle, Bell, User, ChevronDown, ChevronRight, LogOut
 } from 'lucide-react';
+import { logoutAdmin, getDashboardData } from '../_services/dashboardService';
+import { useRouter } from 'next/navigation';
+import { DashboardResponse } from '../_models/types';
 
 type MenuItem = {
   id: string;
   label: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: React.ComponentType<any>;
   type: 'single' | 'section';
   children?: {
     id: string;
     label: string;
-    icon: React.ComponentType<{ size?: number; className?: string }>;
+    icon: React.ComponentType<any>;
   }[];
 };
 
@@ -30,6 +33,21 @@ const Sidebar = () => {
     carte: false,
     donnees: false
   });
+  const [adminData, setAdminData] = useState<DashboardResponse['admin'] | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchAdminData = async () => {
+      try {
+        const data = await getDashboardData();
+        setAdminData(data.admin);
+      } catch (error) {
+        console.error('Failed to fetch admin data:', error);
+      }
+    };
+
+    fetchAdminData();
+  }, []);
 
   const handleItemClick = (itemId: string): void => setActiveItem(itemId);
 
@@ -38,6 +56,17 @@ const Sidebar = () => {
       ...prev,
       [sectionId]: !prev[sectionId]
     }));
+
+  const handleLogout = async () => {
+    try {
+      await logoutAdmin();
+      router.push('/auth/sign-in');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Even if logout fails, redirect to sign-in
+      router.push('/auth/sign-in');
+    }
+  };
 
   const menuItems: MenuItem[] = [
     { id: 'dashboard', label: 'Tableau de bord', icon: Home, type: 'single' },
@@ -180,10 +209,19 @@ const Sidebar = () => {
             <HelpCircle size={18} />
             <span>Aide</span>
           </button>
-          <button className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-50 relative">
-            <Bell size={16} />
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
-          </button>
+          <div className="flex items-center space-x-2">
+            <button 
+              onClick={handleLogout}
+              className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-50"
+              title="Se déconnecter"
+            >
+              <LogOut size={16} />
+            </button>
+            <button className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-50 relative">
+              <Bell size={16} />
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
+            </button>
+          </div>
         </div>
         
         <div className="flex items-center space-x-3 p-3 rounded-lg bg-gray-50">
@@ -191,8 +229,12 @@ const Sidebar = () => {
             <User className="text-white" size={16} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-medium text-gray-900 text-sm">Admin User</p>
-            <p className="text-xs text-gray-500 truncate">admin@schoolmapper.com</p>
+            <p className="font-medium text-gray-900 text-sm">
+              {adminData?.name || 'Admin User'}
+            </p>
+            <p className="text-xs text-gray-500 truncate">
+              {adminData?.email || 'admin@schoolmapper.com'}
+            </p>
           </div>
         </div>
       </div>

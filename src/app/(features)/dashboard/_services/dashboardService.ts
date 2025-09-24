@@ -57,3 +57,10 @@ export async function getEtablissementStats(): Promise<EtablissementStats> {
   const result: EtablissementStats = await response.json();
   return result;
 }
+
+export async function logoutAdmin(): Promise<void> {
+  'use server';
+
+  const cookieStore = await cookies();
+  cookieStore.delete('admin_token');
+}
