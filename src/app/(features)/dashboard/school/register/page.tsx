@@ -108,7 +108,7 @@ export default function SchoolRegistrationPage() {
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Informations générales */}
           <div className="bg-white border border-gray-200 rounded-lg p-6">
