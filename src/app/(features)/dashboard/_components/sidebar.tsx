@@ -1,12 +1,12 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import { 
-  Home, Map, School, Plus, Edit, List, BarChart3, Users, Settings,
-  FileText, Search, MapPin, Layers, Download, Upload,
+  Home, School, Plus, Edit, List, Users,
+  FileText, Search, MapPin,
   HelpCircle, Bell, User, ChevronDown, ChevronRight, LogOut
 } from 'lucide-react';
 import { logoutAdmin, getDashboardData } from '../_services/dashboardService';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { DashboardResponse } from '../_models/types';
 
 type MenuItem = {
@@ -29,12 +29,11 @@ type ExpandedSections = {
 const Sidebar = () => {
   const [activeItem, setActiveItem] = useState<string>('dashboard');
   const [expandedSections, setExpandedSections] = useState<ExpandedSections>({
-    ecoles: true,
-    carte: false,
-    donnees: false
+    ecoles: true
   });
   const [adminData, setAdminData] = useState<DashboardResponse['admin'] | null>(null);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const fetchAdminData = async () => {
@@ -49,7 +48,45 @@ const Sidebar = () => {
     fetchAdminData();
   }, []);
 
-  const handleItemClick = (itemId: string): void => setActiveItem(itemId);
+  // Détecter la page active basée sur l'URL
+  useEffect(() => {
+    if (pathname === '/dashboard') {
+      setActiveItem('dashboard');
+    } else if (pathname === '/dashboard/school') {
+      setActiveItem('ecoles-liste');
+    } else if (pathname === '/dashboard/school/register') {
+      setActiveItem('ecoles-creer');
+    } else if (pathname.startsWith('/dashboard/school/edit/')) {
+      setActiveItem('ecoles-modifier');
+    } else if (pathname.includes('/users')) {
+      setActiveItem('utilisateurs');
+    }
+  }, [pathname]);
+
+  const handleItemClick = (itemId: string): void => {
+    setActiveItem(itemId);
+    
+    // Navigation logic
+    switch (itemId) {
+      case 'dashboard':
+        router.push('/dashboard');
+        break;
+      case 'ecoles-liste':
+        router.push('/dashboard/school');
+        break;
+      case 'ecoles-creer':
+        router.push('/dashboard/school/register');
+        break;
+      case 'ecoles-modifier':
+        router.push('/dashboard/school');
+        break;
+      case 'utilisateurs':
+        router.push('/dashboard/users');
+        break;
+      default:
+        break;
+    }
+  };
 
   const toggleSection = (sectionId: string): void =>
     setExpandedSections(prev => ({
@@ -71,17 +108,6 @@ const Sidebar = () => {
   const menuItems: MenuItem[] = [
     { id: 'dashboard', label: 'Tableau de bord', icon: Home, type: 'single' },
     {
-      id: 'carte',
-      label: 'Cartographie',
-      icon: Map,
-      type: 'section',
-      children: [
-        { id: 'carte-vue', label: 'Vue carte', icon: Map },
-        { id: 'carte-couches', label: 'Couches', icon: Layers },
-        { id: 'carte-zones', label: 'Zones', icon: MapPin }
-      ]
-    },
-    {
       id: 'ecoles',
       label: 'Écoles',
       icon: School,
@@ -92,19 +118,7 @@ const Sidebar = () => {
         { id: 'ecoles-liste', label: 'Liste', icon: List }
       ]
     },
-    { id: 'statistiques', label: 'Statistiques', icon: BarChart3, type: 'single' },
-    {
-      id: 'donnees',
-      label: 'Données',
-      icon: FileText,
-      type: 'section',
-      children: [
-        { id: 'donnees-import', label: 'Importer', icon: Upload },
-        { id: 'donnees-export', label: 'Exporter', icon: Download }
-      ]
-    },
-    { id: 'utilisateurs', label: 'Utilisateurs', icon: Users, type: 'single' },
-    { id: 'parametres', label: 'Paramètres', icon: Settings, type: 'single' }
+    { id: 'utilisateurs', label: 'Utilisateurs', icon: Users, type: 'single' }
   ];
 
   return (

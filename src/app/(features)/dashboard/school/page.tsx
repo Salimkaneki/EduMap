@@ -12,18 +12,23 @@ import {
   ChevronDown,
   ChevronUp,
   Eye,
+  Edit3,
+  Trash2,
   Download,
   Plus,
   School,
   ArrowUpDown
 } from "lucide-react";
 import { Etablissement, EtablissementResponse, SearchFilters } from "../../../etablissements/_model/etablissement";
+import { useRouter } from "next/navigation";
+import { deleteSchool } from "./_services/schoolService";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
   "https://edumap-api.bestwebapp.tech/api";
 
 export default function SchoolsListPage() {
+  const router = useRouter();
   const [schoolsData, setSchoolsData] = useState<Etablissement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -176,6 +181,21 @@ export default function SchoolsListPage() {
     }
   };
 
+  const handleDelete = async (schoolId: number, schoolName: string) => {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer l'établissement "${schoolName}" ? Cette action est irréversible.`)) {
+      return;
+    }
+
+    try {
+      await deleteSchool(schoolId);
+      // Recharger les données après suppression
+      await fetchSchools();
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+      alert(`Erreur lors de la suppression: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+    }
+  };
+
   const SortIcon = ({ field }: { field: keyof Etablissement }) => {
     if (sortField !== field) return <ArrowUpDown size={14} className="ml-1 opacity-50" />;
     return sortDirection === "asc" ? 
@@ -269,21 +289,31 @@ export default function SchoolsListPage() {
       </header>
 
       {/* Filters and Search */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+      <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6 shadow-sm">
+        {/* Search Bar */}
+        <div className="mb-6">
+          <div className="relative max-w-md">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             <input
               type="text"
               placeholder="Rechercher un établissement..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent"
+              className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-gray-50 focus:bg-white transition"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div className="flex gap-2">
+        </div>
+
+        {/* Filters Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          {/* Status Filter */}
+          <div className="space-y-2">
+            <label className="flex items-center text-sm font-medium text-gray-700">
+              <Building size={16} className="mr-2 text-gray-500" />
+              Statut
+            </label>
             <select
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
@@ -292,8 +322,16 @@ export default function SchoolsListPage() {
                 <option key={statut} value={statut}>{statut}</option>
               ))}
             </select>
+          </div>
+
+          {/* Region Filter */}
+          <div className="space-y-2">
+            <label className="flex items-center text-sm font-medium text-gray-700">
+              <MapPin size={16} className="mr-2 text-gray-500" />
+              Région
+            </label>
             <select
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white"
               value={regionFilter}
               onChange={(e) => setRegionFilter(e.target.value)}
             >
@@ -302,8 +340,16 @@ export default function SchoolsListPage() {
                 <option key={region} value={region}>{region}</option>
               ))}
             </select>
+          </div>
+
+          {/* Prefecture Filter */}
+          <div className="space-y-2">
+            <label className="flex items-center text-sm font-medium text-gray-700">
+              <MapPin size={16} className="mr-2 text-gray-500" />
+              Préfecture
+            </label>
             <select
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white"
               value={prefectureFilter}
               onChange={(e) => setPrefectureFilter(e.target.value)}
             >
@@ -312,8 +358,16 @@ export default function SchoolsListPage() {
                 <option key={prefecture} value={prefecture}>{prefecture}</option>
               ))}
             </select>
+          </div>
+
+          {/* Milieu Filter */}
+          <div className="space-y-2">
+            <label className="flex items-center text-sm font-medium text-gray-700">
+              <Home size={16} className="mr-2 text-gray-500" />
+              Milieu
+            </label>
             <select
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white"
               value={milieuFilter}
               onChange={(e) => setMilieuFilter(e.target.value)}
             >
@@ -322,22 +376,91 @@ export default function SchoolsListPage() {
                 <option key={milieu} value={milieu}>{milieu}</option>
               ))}
             </select>
-            <select
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent text-sm"
-              value={systemeFilter}
-              onChange={(e) => setSystemeFilter(e.target.value)}
+          </div>
+        </div>
+
+        {/* System Filter and Actions */}
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="flex items-center gap-4 flex-1">
+            <div className="space-y-2">
+              <label className="flex items-center text-sm font-medium text-gray-700">
+                <School size={16} className="mr-2 text-gray-500" />
+                Système
+              </label>
+              <select
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white"
+                value={systemeFilter}
+                onChange={(e) => setSystemeFilter(e.target.value)}
+              >
+                <option value="Tous">Tous les systèmes</option>
+                {filterOptions?.types_systeme.map((systeme) => (
+                  <option key={systeme} value={systeme}>{systeme}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setStatusFilter('Tous');
+                setRegionFilter('Toutes');
+                setPrefectureFilter('Toutes');
+                setMilieuFilter('Tous');
+                setSystemeFilter('Tous');
+                setCurrentPage(1);
+              }}
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition text-sm text-gray-700"
             >
-              <option value="Tous">Tous les systèmes</option>
-              {filterOptions?.types_systeme.map((systeme) => (
-                <option key={systeme} value={systeme}>{systeme}</option>
-              ))}
-            </select>
-            <button className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition text-sm">
+              <Filter size={16} />
+              Réinitialiser
+            </button>
+            <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition text-sm text-gray-700">
               <Filter size={16} />
               Plus de filtres
             </button>
           </div>
         </div>
+
+        {/* Active Filters Display */}
+        {(searchTerm || statusFilter !== "Tous" || regionFilter !== "Toutes" || prefectureFilter !== "Toutes" || milieuFilter !== "Tous" || systemeFilter !== "Tous") && (
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <div className="flex flex-wrap gap-2">
+              <span className="text-sm font-medium text-gray-700">Filtres actifs:</span>
+              {searchTerm && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  Recherche: {searchTerm}
+                </span>
+              )}
+              {statusFilter !== "Tous" && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  Statut: {statusFilter}
+                </span>
+              )}
+              {regionFilter !== "Toutes" && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                  Région: {regionFilter}
+                </span>
+              )}
+              {prefectureFilter !== "Toutes" && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                  Préfecture: {prefectureFilter}
+                </span>
+              )}
+              {milieuFilter !== "Tous" && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
+                  Milieu: {milieuFilter}
+                </span>
+              )}
+              {systemeFilter !== "Tous" && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                  Système: {systemeFilter}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Schools Table */}
@@ -432,9 +555,22 @@ export default function SchoolsListPage() {
                   </span>
                 </td>
                 <td className="py-4 px-4 text-right">
-                  <button className="p-1.5 text-gray-400 hover:text-gray-700 rounded hover:bg-gray-100 transition">
-                    <Eye size={16} />
-                  </button>
+                  <div className="flex gap-1 justify-end">
+                    <button
+                      onClick={() => router.push(`/dashboard/school/edit/${school.id}`)}
+                      className="p-1.5 text-gray-400 hover:text-blue-600 rounded hover:bg-blue-50 transition"
+                      title="Modifier l'établissement"
+                    >
+                      <Edit3 size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(school.id, school.nom_etablissement)}
+                      className="p-1.5 text-gray-400 hover:text-red-600 rounded hover:bg-red-50 transition"
+                      title="Supprimer l'établissement"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

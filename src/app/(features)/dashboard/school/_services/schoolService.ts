@@ -98,3 +98,159 @@ export async function createSchool(schoolData: CreateSchoolData): Promise<any> {
     throw error;
   }
 }
+
+/**
+ * Récupérer un établissement scolaire par son ID
+ */
+export async function getSchoolById(id: number): Promise<any> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('admin_token')?.value;
+
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  try {
+    console.log('Récupération d\'école - ID:', id);
+
+    const response = await fetch(`${API_BASE_URL}/etablissements/${id}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    console.log('Récupération d\'école - Statut réponse:', response.status);
+
+    if (!response.ok) {
+      let errorMessage = 'Une erreur est survenue lors de la récupération de l\'établissement';
+
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorData.message || errorMessage;
+      } catch (parseError) {
+        errorMessage = `Erreur HTTP ${response.status}: ${response.statusText}`;
+      }
+
+      throw new Error(errorMessage);
+    }
+
+    const data = await response.json();
+    console.log('École récupérée avec succès:', data);
+
+    return data;
+  } catch (error) {
+    console.error("Erreur lors de la récupération de l'école:", error);
+    throw error;
+  }
+}
+
+/**
+ * Mettre à jour un établissement scolaire
+ */
+export async function updateSchool(id: number, schoolData: CreateSchoolData): Promise<any> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('admin_token')?.value;
+
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  console.log('Using token:', token);
+
+  try {
+    console.log('Mise à jour d\'école - ID:', id, '- Données reçues:', schoolData);
+
+    const response = await fetch(`${API_BASE_URL}/admin/etablissements/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(schoolData)
+    });
+
+    console.log('Mise à jour d\'école - Statut réponse:', response.status);
+
+    if (!response.ok) {
+      let errorMessage = 'Une erreur est survenue lors de la mise à jour de l\'établissement';
+
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorData.message || errorMessage;
+      } catch (parseError) {
+        // Si la réponse n'est pas du JSON, utiliser le statut HTTP
+        errorMessage = `Erreur HTTP ${response.status}: ${response.statusText}`;
+
+        // Essayer de lire le texte brut pour plus d'infos
+        try {
+          const textResponse = await response.text();
+          console.error('Réponse HTML brute:', textResponse.substring(0, 500));
+        } catch (textError) {
+          console.error('Impossible de lire la réponse d\'erreur:', textError);
+        }
+      }
+
+      throw new Error(errorMessage);
+    }
+
+    const data = await response.json();
+    console.log('École mise à jour avec succès:', data);
+
+    return data;
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour de l'école:", error);
+    throw error;
+  }
+}
+
+/**
+ * Supprimer un établissement scolaire
+ */
+export async function deleteSchool(id: number): Promise<any> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('admin_token')?.value;
+
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  try {
+    console.log('Suppression d\'école - ID:', id);
+
+    const response = await fetch(`${API_BASE_URL}/admin/etablissements/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    console.log('Suppression d\'école - Statut réponse:', response.status);
+
+    if (!response.ok) {
+      let errorMessage = 'Une erreur est survenue lors de la suppression de l\'établissement';
+
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorData.message || errorMessage;
+      } catch (parseError) {
+        errorMessage = `Erreur HTTP ${response.status}: ${response.statusText}`;
+      }
+
+      throw new Error(errorMessage);
+    }
+
+    const data = await response.json();
+    console.log('École supprimée avec succès:', data);
+
+    return data;
+  } catch (error) {
+    console.error("Erreur lors de la suppression de l'école:", error);
+    throw error;
+  }
+}
