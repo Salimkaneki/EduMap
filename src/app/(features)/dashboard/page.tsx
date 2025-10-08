@@ -144,52 +144,6 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* Admin Stats */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="flex justify-between items-start mb-4">
-            <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-blue-100">
-              <User size={18} className="text-blue-700" />
-            </div>
-            <span className="text-xs font-medium text-blue-600 bg-blue-50 py-1 px-2 rounded">
-              Total
-            </span>
-          </div>
-          <div>
-            <p className="text-2xl font-light text-gray-900">{dashboardData.stats.total_admins}</p>
-            <p className="text-xs text-gray-500 mt-1">Administrateurs</p>
-          </div>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="flex justify-between items-start mb-4">
-            <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-green-100">
-              <User size={18} className="text-green-700" />
-            </div>
-            <span className="text-xs font-medium text-green-600 bg-green-50 py-1 px-2 rounded">
-              Réguliers
-            </span>
-          </div>
-          <div>
-            <p className="text-2xl font-light text-gray-900">{dashboardData.stats.regular_admins}</p>
-            <p className="text-xs text-gray-500 mt-1">Admins réguliers</p>
-          </div>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="flex justify-between items-start mb-4">
-            <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-purple-100">
-              <User size={18} className="text-purple-700" />
-            </div>
-            <span className="text-xs font-medium text-purple-600 bg-purple-50 py-1 px-2 rounded">
-              Super
-            </span>
-          </div>
-          <div>
-            <p className="text-2xl font-light text-gray-900">{dashboardData.stats.super_admins}</p>
-            <p className="text-xs text-gray-500 mt-1">Super admins</p>
-          </div>
-        </div>
-      </section>
-
       {/* Stats */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {realStats.map((stat) => {
