@@ -28,22 +28,22 @@ export default function EtabCard({
   onViewOnMap,
 }: EtabCardProps) {
   const totalEleves =
-    etablissement.effectif.sommedenb_eff_g +
-    etablissement.effectif.sommedenb_eff_f;
+    (etablissement.effectif?.sommedenb_eff_g || 0) +
+    (etablissement.effectif?.sommedenb_eff_f || 0);
   const totalEnseignants =
-    etablissement.effectif.sommedenb_ens_h +
-    etablissement.effectif.sommedenb_ens_f;
+    (etablissement.effectif?.sommedenb_ens_h || 0) +
+    (etablissement.effectif?.sommedenb_ens_f || 0);
   const totalSalles =
-    etablissement.infrastructure.sommedenb_salles_classes_dur +
-    etablissement.infrastructure.sommedenb_salles_classes_banco +
-    etablissement.infrastructure.sommedenb_salles_classes_autre;
+    (etablissement.infrastructure?.sommedenb_salles_classes_dur || 0) +
+    (etablissement.infrastructure?.sommedenb_salles_classes_banco || 0) +
+    (etablissement.infrastructure?.sommedenb_salles_classes_autre || 0);
 
   const ratioElevesEnseignants = totalEnseignants > 0 ? Math.round(totalEleves / totalEnseignants) : 0;
 
   const equipments = [
-    { key: 'electricity', status: etablissement.equipement.existe_elect, label: 'Électricité', icon: Zap },
-    { key: 'water', status: etablissement.equipement.eau, label: 'Eau courante', icon: Droplets },
-    { key: 'sanitation', status: etablissement.equipement.existe_latrine, label: 'Sanitaires', icon: Home },
+    { key: 'electricity', status: etablissement.equipement?.existe_elect || false, label: 'Électricité', icon: Zap },
+    { key: 'water', status: etablissement.equipement?.eau || false, label: 'Eau courante', icon: Droplets },
+    { key: 'sanitation', status: etablissement.equipement?.existe_latrine || false, label: 'Sanitaires', icon: Home },
   ];
 
   const equipmentCount = equipments.filter(eq => eq.status).length;
@@ -61,17 +61,17 @@ export default function EtabCard({
                 </h3>
                 <span className={cn(
                   "inline-flex items-center px-2 py-1 rounded text-xs font-medium whitespace-nowrap",
-                  etablissement.statut.libelle_type_statut_etab === "Public"
+                  etablissement.statut?.libelle_type_statut_etab === "Public"
                     ? "bg-blue-50 text-blue-700 border border-blue-200"
                     : "bg-amber-50 text-amber-700 border border-amber-200"
                 )}>
-                  {etablissement.statut.libelle_type_statut_etab}
+                  {etablissement.statut?.libelle_type_statut_etab || "N/A"}
                 </span>
               </div>
               <div className="flex items-center text-sm text-slate-600">
                 <MapPin className="w-4 h-4 mr-2 text-slate-400" />
                 <span className="line-clamp-1">
-                  {etablissement.localisation.ville_village_quartier}, {etablissement.localisation.prefecture}
+                  {etablissement.localisation?.ville_village_quartier || "N/A"}, {etablissement.localisation?.prefecture || "N/A"}
                 </span>
               </div>
             </div>
@@ -80,27 +80,23 @@ export default function EtabCard({
 
         {/* Stats Grid */}
         <div className="px-6 py-5">
-          <div className="grid grid-cols-4 gap-6">
+          <div className="grid grid-cols-3 gap-6">
             <Metric
               label="Élèves"
-              value={totalEleves.toLocaleString()}
+              value={totalEleves > 0 ? totalEleves.toLocaleString() : "N/A"}
               icon={Users}
             />
             <Metric
               label="Enseignants"
-              value={totalEnseignants ? totalEnseignants.toLocaleString() : "—"}
+              value={totalEnseignants > 0 ? totalEnseignants.toLocaleString() : "N/A"}
               icon={GraduationCap}
             />
             <Metric
               label="Salles"
-              value={totalSalles.toLocaleString()}
+              value={totalSalles > 0 ? totalSalles.toLocaleString() : "N/A"}
               icon={Building}
             />
-            <Metric
-              label="Ratio É/E"
-              value={ratioElevesEnseignants > 0 ? `${ratioElevesEnseignants}:1` : "—"}
-              subtext={ratioElevesEnseignants > 0 ? (ratioElevesEnseignants > 30 ? "Élevé" : "Normal") : ""}
-            />
+
           </div>
         </div>
 
@@ -150,13 +146,14 @@ export default function EtabCard({
               className="flex-1 border-slate-300 text-slate-700 hover:bg-slate-50"
               onClick={() =>
                 onViewOnMap?.(
-                  parseFloat(etablissement.latitude),
-                  parseFloat(etablissement.longitude)
+                  parseFloat(etablissement.latitude || "0"),
+                  parseFloat(etablissement.longitude || "0")
                 )
               }
+              disabled={!etablissement.latitude || !etablissement.longitude}
             >
               <MapPin className="w-4 h-4 mr-2" />
-              Localiser
+              {etablissement.latitude && etablissement.longitude ? "Localiser" : "N/A"}
             </Button>
             <Button
               size="sm"
@@ -192,7 +189,7 @@ function Metric({
           <Icon className="w-5 h-5 text-slate-400" />
         </div>
       )}
-      <div className="text-2xl font-bold text-slate-900 mb-1">
+      <div className="text-lg font-bold text-slate-900 mb-1">
         {value}
       </div>
       <div className="text-xs font-medium text-slate-600 uppercase tracking-wide">
