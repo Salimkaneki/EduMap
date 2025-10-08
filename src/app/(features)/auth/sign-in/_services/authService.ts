@@ -21,7 +21,7 @@ export async function loginAdmin(data: LoginRequest): Promise<LoginResponse> {
   // Store the token in a cookie
   const cookieStore = await cookies();
   cookieStore.set('admin_token', result.token, {
-    httpOnly: true,
+    httpOnly: false,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
     maxAge: 60 * 60 * 24 * 7, // 7 days

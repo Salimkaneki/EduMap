@@ -397,10 +397,10 @@ export default function SchoolsListPage() {
                     <div>
                       <div className="flex items-center text-sm text-gray-700">
                         <Users size={14} className="mr-1" />
-                        {school.effectif?.tot?.toLocaleString() || 0} élèves
+                        {((school.effectif?.sommedenb_eff_g || 0) + (school.effectif?.sommedenb_eff_f || 0)).toLocaleString()} élèves
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
-                        {school.effectif?.total_ense || 0} enseignants
+                        {((school.effectif?.sommedenb_ens_h || 0) + (school.effectif?.sommedenb_ens_f || 0)).toLocaleString()} enseignants
                       </div>
                     </div>
                   </div>

@@ -8,48 +8,71 @@ import {
   Building,
   Zap,
   Droplets,
-  Home,
-  Upload,
-  X,
-  School
+  Home
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useFilterOptions } from '../../../../../../hooks/useFilterOptions';
+import { createSchool, CreateSchoolData } from '../_services/schoolService';
 
 interface SchoolFormData {
-  name: string;
-  address: string;
-  city: string;
-  prefecture: string;
-  students: string;
-  teachers: string;
-  classrooms: string;
-  electricity: boolean;
-  water: boolean;
-  sanitation: boolean;
-  status: "Public" | "Privé";
+  code_etablissement: string;
+  nom_etablissement: string;
   latitude: string;
   longitude: string;
-  photo: File | null;
+  region: string;
+  prefecture: string;
+  canton_village_autonome: string;
+  ville_village_quartier: string;
+  commune_etab: string;
+  libelle_type_milieu: string;
+  libelle_type_statut_etab: string;
+  libelle_type_systeme: string;
+  libelle_type_annee: string;
+  existe_elect: boolean;
+  existe_latrine: boolean;
+  existe_latrine_fonct: boolean;
+  acces_toute_saison: boolean;
+  eau: boolean;
+  sommedenb_eff_g: string;
+  sommedenb_eff_f: string;
+  sommedenb_ens_h: string;
+  sommedenb_ens_f: string;
+  sommedenb_salles_classes_dur: string;
+  sommedenb_salles_classes_banco: string;
+  sommedenb_salles_classes_autre: string;
 }
 
 export default function SchoolRegistrationPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { filterOptions, loading: filterOptionsLoading, error: filterOptionsError } = useFilterOptions();
   const [formData, setFormData] = useState<SchoolFormData>({
-    name: "",
-    address: "",
-    city: "",
-    prefecture: "",
-    students: "",
-    teachers: "",
-    classrooms: "",
-    electricity: false,
-    water: false,
-    sanitation: false,
-    status: "Public",
+    code_etablissement: "",
+    nom_etablissement: "",
     latitude: "",
     longitude: "",
-    photo: null
+    region: "",
+    prefecture: "",
+    canton_village_autonome: "",
+    ville_village_quartier: "",
+    commune_etab: "",
+    libelle_type_milieu: "",
+    libelle_type_statut_etab: "",
+    libelle_type_systeme: "",
+    libelle_type_annee: "2023-2024",
+    existe_elect: false,
+    existe_latrine: false,
+    existe_latrine_fonct: false,
+    acces_toute_saison: false,
+    eau: false,
+    sommedenb_eff_g: "",
+    sommedenb_eff_f: "",
+    sommedenb_ens_h: "",
+    sommedenb_ens_f: "",
+    sommedenb_salles_classes_dur: "",
+    sommedenb_salles_classes_banco: "",
+    sommedenb_salles_classes_autre: ""
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -60,27 +83,55 @@ export default function SchoolRegistrationPage() {
     }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setFormData(prev => ({ ...prev, photo: file }));
-  };
-
-  const removePhoto = () => {
-    setFormData(prev => ({ ...prev, photo: null }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
     
-    // Simuler un envoi de formulaire
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    console.log("Données soumises:", formData);
-    setIsSubmitting(false);
-    
-    // Redirection après succès
-    router.push("/dashboard/school?success=true");
+    try {
+      // Validation côté client
+      const lat = parseFloat(formData.latitude);
+      const lng = parseFloat(formData.longitude);
+      
+      if (isNaN(lat) || lat < -90 || lat > 90) {
+        throw new Error('Latitude invalide (doit être entre -90 et 90)');
+      }
+      
+      if (isNaN(lng) || lng < -180 || lng > 180) {
+        throw new Error('Longitude invalide (doit être entre -180 et 180)');
+      }
+
+      // Préparer les données pour l'API
+      const payload: CreateSchoolData = {
+        ...formData,
+        // Convertir les chaînes en nombres pour les champs numériques
+        latitude: lat,
+        longitude: lng,
+        sommedenb_eff_g: parseInt(formData.sommedenb_eff_g) || 0,
+        sommedenb_eff_f: parseInt(formData.sommedenb_eff_f) || 0,
+        sommedenb_ens_h: parseInt(formData.sommedenb_ens_h) || 0,
+        sommedenb_ens_f: parseInt(formData.sommedenb_ens_f) || 0,
+        sommedenb_salles_classes_dur: parseInt(formData.sommedenb_salles_classes_dur) || 0,
+        sommedenb_salles_classes_banco: parseInt(formData.sommedenb_salles_classes_banco) || 0,
+        sommedenb_salles_classes_autre: parseInt(formData.sommedenb_salles_classes_autre) || 0,
+        // Calculer le total des élèves
+        tot: (parseInt(formData.sommedenb_eff_g) || 0) + (parseInt(formData.sommedenb_eff_f) || 0),
+        // Calculer le total des enseignants
+        total_ense: (parseInt(formData.sommedenb_ens_h) || 0) + (parseInt(formData.sommedenb_ens_f) || 0)
+      };
+
+      // Utiliser le service pour créer l'école
+      const result = await createSchool(payload);
+      console.log('Établissement créé:', result);
+      
+      // Redirection après succès
+      router.push("/dashboard/school?success=true");
+    } catch (error) {
+      console.error('Erreur:', error);
+      setError((error as Error).message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -97,7 +148,7 @@ export default function SchoolRegistrationPage() {
         
         <div className="flex items-center gap-4">
           <div className="p-3 bg-blue-100 rounded-lg">
-            <School className="text-blue-600" size={24} />
+            <Building className="text-blue-600" size={24} />
           </div>
           <div>
             <h1 className="text-2xl font-medium text-gray-900">Nouvel établissement</h1>
@@ -107,6 +158,26 @@ export default function SchoolRegistrationPage() {
           </div>
         </div>
       </header>
+
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex items-center">
+            <div className="text-red-600 mr-2">⚠️</div>
+            <p className="text-red-800 text-sm">{error}</p>
+          </div>
+        </div>
+      )}
+
+      {filterOptionsError && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="flex items-center">
+            <div className="text-yellow-600 mr-2">⚠️</div>
+            <p className="text-yellow-800 text-sm">
+              Attention: Impossible de charger les options de filtrage. Vous pouvez continuer mais certains champs peuvent être limités.
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-6xl mx-auto">
         <form onSubmit={handleSubmit} className="space-y-8">
@@ -120,106 +191,153 @@ export default function SchoolRegistrationPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Code établissement *
+                </label>
+                <input
+                  type="text"
+                  name="code_etablissement"
+                  value={formData.code_etablissement}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Ex: ETB001"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Nom de l'établissement *
                 </label>
                 <input
                   type="text"
-                  name="name"
-                  value={formData.name}
+                  name="nom_etablissement"
+                  value={formData.nom_etablissement}
                   onChange={handleInputChange}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Ex: Lycée Moderne d'Abidjan"
+                  placeholder="Ex: École Primaire de Test"
                 />
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Statut *
+                  Région *
                 </label>
                 <select
-                  name="status"
-                  value={formData.status}
+                  name="region"
+                  value={formData.region}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  disabled={filterOptionsLoading}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                 >
-                  <option value="Public">Public</option>
-                  <option value="Privé">Privé</option>
+                  <option value="">
+                    {filterOptionsLoading ? 'Chargement...' : 'Sélectionnez une région'}
+                  </option>
+                  {filterOptions?.regions.map((region) => (
+                    <option key={region} value={region}>
+                      {region}
+                    </option>
+                  ))}
                 </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Adresse *
-                </label>
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Ex: Rue des Écoles, Plateau"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Ville/Village *
-                </label>
-                <input
-                  type="text"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Ex: Abidjan"
-                />
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Préfecture *
                 </label>
-                <input
-                  type="text"
+                <select
                   name="prefecture"
                   value={formData.prefecture}
                   onChange={handleInputChange}
                   required
+                  disabled={filterOptionsLoading}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                >
+                  <option value="">
+                    {filterOptionsLoading ? 'Chargement...' : 'Sélectionnez une préfecture'}
+                  </option>
+                  {filterOptions?.prefectures.map((prefecture) => (
+                    <option key={prefecture} value={prefecture}>
+                      {prefecture}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Canton/Village autonome *
+                </label>
+                <input
+                  type="text"
+                  name="canton_village_autonome"
+                  value={formData.canton_village_autonome}
+                  onChange={handleInputChange}
+                  required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Ex: Abidjan"
+                  placeholder="Ex: Test Village"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Ville/Village/Quartier *
+                </label>
+                <input
+                  type="text"
+                  name="ville_village_quartier"
+                  value={formData.ville_village_quartier}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Ex: Test Quartier"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Commune *
+                </label>
+                <input
+                  type="text"
+                  name="commune_etab"
+                  value={formData.commune_etab}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Ex: Test Commune"
                 />
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Latitude
+                    Latitude *
                   </label>
                   <input
                     type="text"
                     name="latitude"
                     value={formData.latitude}
                     onChange={handleInputChange}
+                    required
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Ex: 5.3456"
+                    placeholder="Ex: 6.1319"
                   />
                 </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Longitude
+                    Longitude *
                   </label>
                   <input
                     type="text"
                     name="longitude"
                     value={formData.longitude}
                     onChange={handleInputChange}
+                    required
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Ex: -4.1234"
+                    placeholder="Ex: 1.2228"
                   />
                 </div>
               </div>
@@ -233,15 +351,184 @@ export default function SchoolRegistrationPage() {
               Effectifs
             </h2>
             
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nombre d'élèves garçons *
+                </label>
+                <input
+                  type="number"
+                  name="sommedenb_eff_g"
+                  value={formData.sommedenb_eff_g}
+                  onChange={handleInputChange}
+                  required
+                  min="0"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="0"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nombre d'élèves filles *
+                </label>
+                <input
+                  type="number"
+                  name="sommedenb_eff_f"
+                  value={formData.sommedenb_eff_f}
+                  onChange={handleInputChange}
+                  required
+                  min="0"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="0"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nombre d'enseignants hommes *
+                </label>
+                <input
+                  type="number"
+                  name="sommedenb_ens_h"
+                  value={formData.sommedenb_ens_h}
+                  onChange={handleInputChange}
+                  required
+                  min="0"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="0"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nombre d'enseignantes femmes *
+                </label>
+                <input
+                  type="number"
+                  name="sommedenb_ens_f"
+                  value={formData.sommedenb_ens_f}
+                  onChange={handleInputChange}
+                  required
+                  min="0"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Types */}
+          <div className="bg-white border border-gray-200 rounded-lg p-6">
+            <h2 className="text-lg font-medium text-gray-900 mb-6 flex items-center">
+              <Building size={20} className="mr-2 text-purple-600" />
+              Types et classifications
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Type de milieu *
+                </label>
+                <select
+                  name="libelle_type_milieu"
+                  value={formData.libelle_type_milieu}
+                  onChange={handleInputChange}
+                  required
+                  disabled={filterOptionsLoading}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                >
+                  <option value="">
+                    {filterOptionsLoading ? 'Chargement...' : 'Sélectionnez un type de milieu'}
+                  </option>
+                  {filterOptions?.types_milieu.map((milieu) => (
+                    <option key={milieu} value={milieu}>
+                      {milieu}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Statut *
+                </label>
+                <select
+                  name="libelle_type_statut_etab"
+                  value={formData.libelle_type_statut_etab}
+                  onChange={handleInputChange}
+                  required
+                  disabled={filterOptionsLoading}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                >
+                  <option value="">
+                    {filterOptionsLoading ? 'Chargement...' : 'Sélectionnez un statut'}
+                  </option>
+                  {filterOptions?.types_statut.map((statut) => (
+                    <option key={statut} value={statut}>
+                      {statut}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Système *
+                </label>
+                <select
+                  name="libelle_type_systeme"
+                  value={formData.libelle_type_systeme}
+                  onChange={handleInputChange}
+                  required
+                  disabled={filterOptionsLoading}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                >
+                  <option value="">
+                    {filterOptionsLoading ? 'Chargement...' : 'Sélectionnez un système'}
+                  </option>
+                  {filterOptions?.types_systeme.map((systeme) => (
+                    <option key={systeme} value={systeme}>
+                      {systeme}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Année scolaire *
+                </label>
+                <select
+                  name="libelle_type_annee"
+                  value={formData.libelle_type_annee}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="2023-2024">2023-2024</option>
+                  <option value="2024-2025">2024-2025</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Infrastructures */}
+          <div className="bg-white border border-gray-200 rounded-lg p-6">
+            <h2 className="text-lg font-medium text-gray-900 mb-6 flex items-center">
+              <Building size={20} className="mr-2 text-orange-600" />
+              Infrastructures
+            </h2>
+            
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nombre d'élèves *
+                  Salles de classe dur *
                 </label>
                 <input
                   type="number"
-                  name="students"
-                  value={formData.students}
+                  name="sommedenb_salles_classes_dur"
+                  value={formData.sommedenb_salles_classes_dur}
                   onChange={handleInputChange}
                   required
                   min="0"
@@ -252,12 +539,12 @@ export default function SchoolRegistrationPage() {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nombre d'enseignants *
+                  Salles de classe banco *
                 </label>
                 <input
                   type="number"
-                  name="teachers"
-                  value={formData.teachers}
+                  name="sommedenb_salles_classes_banco"
+                  value={formData.sommedenb_salles_classes_banco}
                   onChange={handleInputChange}
                   required
                   min="0"
@@ -268,12 +555,12 @@ export default function SchoolRegistrationPage() {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nombre de salles de classe *
+                  Salles de classe autre *
                 </label>
                 <input
                   type="number"
-                  name="classrooms"
-                  value={formData.classrooms}
+                  name="sommedenb_salles_classes_autre"
+                  value={formData.sommedenb_salles_classes_autre}
                   onChange={handleInputChange}
                   required
                   min="0"
@@ -287,16 +574,16 @@ export default function SchoolRegistrationPage() {
           {/* Équipements */}
           <div className="bg-white border border-gray-200 rounded-lg p-6">
             <h2 className="text-lg font-medium text-gray-900 mb-6 flex items-center">
-              <Building size={20} className="mr-2 text-purple-600" />
-              Équipements et infrastructures
+              <Building size={20} className="mr-2 text-indigo-600" />
+              Équipements et services
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <label className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                 <input
                   type="checkbox"
-                  name="electricity"
-                  checked={formData.electricity}
+                  name="existe_elect"
+                  checked={formData.existe_elect}
                   onChange={handleInputChange}
                   className="rounded text-blue-600 focus:ring-blue-500"
                 />
@@ -309,8 +596,8 @@ export default function SchoolRegistrationPage() {
               <label className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                 <input
                   type="checkbox"
-                  name="water"
-                  checked={formData.water}
+                  name="eau"
+                  checked={formData.eau}
                   onChange={handleInputChange}
                   className="rounded text-blue-600 focus:ring-blue-500"
                 />
@@ -323,61 +610,48 @@ export default function SchoolRegistrationPage() {
               <label className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                 <input
                   type="checkbox"
-                  name="sanitation"
-                  checked={formData.sanitation}
+                  name="existe_latrine"
+                  checked={formData.existe_latrine}
                   onChange={handleInputChange}
                   className="rounded text-blue-600 focus:ring-blue-500"
                 />
                 <div className="ml-3 flex items-center">
                   <Home size={18} className="text-green-600 mr-2" />
-                  <span className="text-sm font-medium text-gray-700">Sanitaires</span>
+                  <span className="text-sm font-medium text-gray-700">Latrines</span>
+                </div>
+              </label>
+              
+              <label className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="existe_latrine_fonct"
+                  checked={formData.existe_latrine_fonct}
+                  onChange={handleInputChange}
+                  className="rounded text-blue-600 focus:ring-blue-500"
+                />
+                <div className="ml-3 flex items-center">
+                  <Home size={18} className="text-green-600 mr-2" />
+                  <span className="text-sm font-medium text-gray-700">Latrines fonctionnelles</span>
+                </div>
+              </label>
+              
+              <label className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer md:col-span-2">
+                <input
+                  type="checkbox"
+                  name="acces_toute_saison"
+                  checked={formData.acces_toute_saison}
+                  onChange={handleInputChange}
+                  className="rounded text-blue-600 focus:ring-blue-500"
+                />
+                <div className="ml-3 flex items-center">
+                  <MapPin size={18} className="text-red-600 mr-2" />
+                  <span className="text-sm font-medium text-gray-700">Accès toute saison</span>
                 </div>
               </label>
             </div>
           </div>
 
-          {/* Photo */}
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-6">
-              Photo de l'établissement
-            </h2>
-            
-            {formData.photo ? (
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <img
-                    src={URL.createObjectURL(formData.photo)}
-                    alt="Preview"
-                    className="w-32 h-32 object-cover rounded-lg"
-                  />
-                  <button
-                    type="button"
-                    onClick={removePhoto}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-                <span className="text-sm text-gray-600">{formData.photo.name}</span>
-              </div>
-            ) : (
-              <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-gray-400">
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <Upload className="w-8 h-8 mb-3 text-gray-400" />
-                  <p className="mb-2 text-sm text-gray-500">
-                    <span className="font-semibold">Cliquer pour uploader</span> ou glisser-déposer
-                  </p>
-                  <p className="text-xs text-gray-500">PNG, JPG, JPEG (MAX. 5MB)</p>
-                </div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-              </label>
-            )}
-          </div>
+
 
           {/* Actions */}
           <div className="flex justify-end gap-4 pt-4">
