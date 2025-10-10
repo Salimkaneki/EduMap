@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import React, { useState, useEffect, useRef } from "react";
 import {
   Search,
@@ -17,9 +17,13 @@ import {
   Download,
   Plus,
   School,
-  ArrowUpDown
+  ArrowUpDown,
 } from "lucide-react";
-import { Etablissement, EtablissementResponse, SearchFilters } from "../../../etablissements/_model/etablissement";
+import {
+  Etablissement,
+  EtablissementResponse,
+  SearchFilters,
+} from "../../../etablissements/_model/etablissement";
 import { useRouter } from "next/navigation";
 import { deleteSchool } from "./_services/schoolService";
 
@@ -39,7 +43,8 @@ export default function SchoolsListPage() {
   const [prefectureFilter, setPrefectureFilter] = useState("Toutes");
   const [milieuFilter, setMilieuFilter] = useState("Tous");
   const [systemeFilter, setSystemeFilter] = useState("Tous");
-  const [sortField, setSortField] = useState<keyof Etablissement>("nom_etablissement");
+  const [sortField, setSortField] =
+    useState<keyof Etablissement>("nom_etablissement");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -72,15 +77,26 @@ export default function SchoolsListPage() {
 
   useEffect(() => {
     fetchSchools();
-  }, [currentPage, debouncedSearchTerm, statusFilter, regionFilter, prefectureFilter, milieuFilter, systemeFilter]);
+  }, [
+    currentPage,
+    debouncedSearchTerm,
+    statusFilter,
+    regionFilter,
+    prefectureFilter,
+    milieuFilter,
+    systemeFilter,
+  ]);
 
   const fetchFilterOptions = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/etablissements/filter-options`, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/etablissements/filter-options`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`Erreur API: ${response.status}`);
@@ -89,7 +105,10 @@ export default function SchoolsListPage() {
       const data = await response.json();
       setFilterOptions(data);
     } catch (err) {
-      console.error("Erreur lors de la récupération des options de filtres:", err);
+      console.error(
+        "Erreur lors de la récupération des options de filtres:",
+        err
+      );
     }
   };
 
@@ -111,7 +130,14 @@ export default function SchoolsListPage() {
       let url: string;
 
       // Si on a des filtres actifs, utiliser la recherche
-      if (debouncedSearchTerm || statusFilter !== "Tous" || regionFilter !== "Toutes" || prefectureFilter !== "Toutes" || milieuFilter !== "Tous" || systemeFilter !== "Tous") {
+      if (
+        debouncedSearchTerm ||
+        statusFilter !== "Tous" ||
+        regionFilter !== "Toutes" ||
+        prefectureFilter !== "Toutes" ||
+        milieuFilter !== "Tous" ||
+        systemeFilter !== "Tous"
+      ) {
         const params = new URLSearchParams();
         params.append("page", currentPage.toString());
         params.append("per_page", itemsPerPage.toString());
@@ -162,11 +188,15 @@ export default function SchoolsListPage() {
       setTotalPages(data.last_page);
       setTotalItems(data.total);
     } catch (err) {
-      if (err instanceof Error && err.name === 'AbortError') {
+      if (err instanceof Error && err.name === "AbortError") {
         // Requête annulée, ignorer
         return;
       }
-      setError(err instanceof Error ? err.message : 'Erreur lors du chargement des établissements');
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Erreur lors du chargement des établissements"
+      );
     } finally {
       setLoading(false);
     }
@@ -182,7 +212,11 @@ export default function SchoolsListPage() {
   };
 
   const handleDelete = async (schoolId: number, schoolName: string) => {
-    if (!confirm(`Êtes-vous sûr de vouloir supprimer l'établissement "${schoolName}" ? Cette action est irréversible.`)) {
+    if (
+      !confirm(
+        `Êtes-vous sûr de vouloir supprimer l'établissement "${schoolName}" ? Cette action est irréversible.`
+      )
+    ) {
       return;
     }
 
@@ -191,41 +225,48 @@ export default function SchoolsListPage() {
       // Recharger les données après suppression
       await fetchSchools();
     } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
-      alert(`Erreur lors de la suppression: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+      console.error("Erreur lors de la suppression:", error);
+      alert(
+        `Erreur lors de la suppression: ${
+          error instanceof Error ? error.message : "Erreur inconnue"
+        }`
+      );
     }
   };
 
   const SortIcon = ({ field }: { field: keyof Etablissement }) => {
-    if (sortField !== field) return <ArrowUpDown size={14} className="ml-1 opacity-50" />;
-    return sortDirection === "asc" ? 
-      <ChevronUp size={14} className="ml-1" /> : 
-      <ChevronDown size={14} className="ml-1" />;
+    if (sortField !== field)
+      return <ArrowUpDown size={14} className="ml-1 opacity-50" />;
+    return sortDirection === "asc" ? (
+      <ChevronUp size={14} className="ml-1" />
+    ) : (
+      <ChevronDown size={14} className="ml-1" />
+    );
   };
 
   // Trier les données localement
   const sortedSchools = [...schoolsData].sort((a, b) => {
     let aValue: any = a[sortField];
     let bValue: any = b[sortField];
-    
+
     // Pour les objets imbriqués, accéder aux propriétés
-    if (sortField === 'statut') {
-      aValue = a.statut?.libelle_type_statut_etab || '';
-      bValue = b.statut?.libelle_type_statut_etab || '';
-    } else if (sortField === 'localisation') {
-      aValue = a.localisation?.region || '';
-      bValue = b.localisation?.region || '';
-    } else if (sortField === 'milieu') {
-      aValue = a.milieu?.libelle_type_milieu || '';
-      bValue = b.milieu?.libelle_type_milieu || '';
-    } else if (sortField === 'systeme') {
-      aValue = a.systeme?.libelle_type_systeme || '';
-      bValue = b.systeme?.libelle_type_systeme || '';
+    if (sortField === "statut") {
+      aValue = a.statut?.libelle_type_statut_etab || "";
+      bValue = b.statut?.libelle_type_statut_etab || "";
+    } else if (sortField === "localisation") {
+      aValue = a.localisation?.region || "";
+      bValue = b.localisation?.region || "";
+    } else if (sortField === "milieu") {
+      aValue = a.milieu?.libelle_type_milieu || "";
+      bValue = b.milieu?.libelle_type_milieu || "";
+    } else if (sortField === "systeme") {
+      aValue = a.systeme?.libelle_type_systeme || "";
+      bValue = b.systeme?.libelle_type_systeme || "";
     }
-    
-    if (typeof aValue === 'string') aValue = aValue.toLowerCase();
-    if (typeof bValue === 'string') bValue = bValue.toLowerCase();
-    
+
+    if (typeof aValue === "string") aValue = aValue.toLowerCase();
+    if (typeof bValue === "string") bValue = bValue.toLowerCase();
+
     if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
     if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
     return 0;
@@ -247,8 +288,8 @@ export default function SchoolsListPage() {
       <div className="min-h-screen bg-white p-6 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">Erreur: {error}</p>
-          <button 
-            onClick={() => fetchSchools()} 
+          <button
+            onClick={() => fetchSchools()}
             className="px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800"
           >
             Réessayer
@@ -270,7 +311,9 @@ export default function SchoolsListPage() {
       <header className="mb-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-medium text-gray-900">Établissements Scolaires</h1>
+            <h1 className="text-2xl font-medium text-gray-900">
+              Établissements Scolaires
+            </h1>
             <p className="text-gray-500 text-sm mt-1">
               {totalItems} établissements trouvés
             </p>
@@ -293,7 +336,10 @@ export default function SchoolsListPage() {
         {/* Search Bar */}
         <div className="mb-6">
           <div className="relative max-w-md">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <Search
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+              size={20}
+            />
             <input
               type="text"
               placeholder="Rechercher un établissement..."
@@ -319,7 +365,9 @@ export default function SchoolsListPage() {
             >
               <option value="Tous">Tous les statuts</option>
               {filterOptions?.types_statut.map((statut) => (
-                <option key={statut} value={statut}>{statut}</option>
+                <option key={statut} value={statut}>
+                  {statut}
+                </option>
               ))}
             </select>
           </div>
@@ -337,7 +385,9 @@ export default function SchoolsListPage() {
             >
               <option value="Toutes">Toutes les régions</option>
               {filterOptions?.regions.map((region) => (
-                <option key={region} value={region}>{region}</option>
+                <option key={region} value={region}>
+                  {region}
+                </option>
               ))}
             </select>
           </div>
@@ -355,7 +405,9 @@ export default function SchoolsListPage() {
             >
               <option value="Toutes">Toutes les préfectures</option>
               {filterOptions?.prefectures.map((prefecture) => (
-                <option key={prefecture} value={prefecture}>{prefecture}</option>
+                <option key={prefecture} value={prefecture}>
+                  {prefecture}
+                </option>
               ))}
             </select>
           </div>
@@ -373,7 +425,9 @@ export default function SchoolsListPage() {
             >
               <option value="Tous">Tous les milieux</option>
               {filterOptions?.types_milieu.map((milieu) => (
-                <option key={milieu} value={milieu}>{milieu}</option>
+                <option key={milieu} value={milieu}>
+                  {milieu}
+                </option>
               ))}
             </select>
           </div>
@@ -394,7 +448,9 @@ export default function SchoolsListPage() {
               >
                 <option value="Tous">Tous les systèmes</option>
                 {filterOptions?.types_systeme.map((systeme) => (
-                  <option key={systeme} value={systeme}>{systeme}</option>
+                  <option key={systeme} value={systeme}>
+                    {systeme}
+                  </option>
                 ))}
               </select>
             </div>
@@ -403,12 +459,12 @@ export default function SchoolsListPage() {
           <div className="flex gap-2">
             <button
               onClick={() => {
-                setSearchTerm('');
-                setStatusFilter('Tous');
-                setRegionFilter('Toutes');
-                setPrefectureFilter('Toutes');
-                setMilieuFilter('Tous');
-                setSystemeFilter('Tous');
+                setSearchTerm("");
+                setStatusFilter("Tous");
+                setRegionFilter("Toutes");
+                setPrefectureFilter("Toutes");
+                setMilieuFilter("Tous");
+                setSystemeFilter("Tous");
                 setCurrentPage(1);
               }}
               className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition text-sm text-gray-700"
@@ -424,10 +480,17 @@ export default function SchoolsListPage() {
         </div>
 
         {/* Active Filters Display */}
-        {(searchTerm || statusFilter !== "Tous" || regionFilter !== "Toutes" || prefectureFilter !== "Toutes" || milieuFilter !== "Tous" || systemeFilter !== "Tous") && (
+        {(searchTerm ||
+          statusFilter !== "Tous" ||
+          regionFilter !== "Toutes" ||
+          prefectureFilter !== "Toutes" ||
+          milieuFilter !== "Tous" ||
+          systemeFilter !== "Tous") && (
           <div className="mt-4 pt-4 border-t border-gray-100">
             <div className="flex flex-wrap gap-2">
-              <span className="text-sm font-medium text-gray-700">Filtres actifs:</span>
+              <span className="text-sm font-medium text-gray-700">
+                Filtres actifs:
+              </span>
               {searchTerm && (
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                   Recherche: {searchTerm}
@@ -468,7 +531,7 @@ export default function SchoolsListPage() {
         <table className="w-full">
           <thead>
             <tr className="bg-gray-50 text-left text-sm text-gray-500 font-medium">
-              <th 
+              <th
                 className="py-3 px-4 cursor-pointer hover:bg-gray-100"
                 onClick={() => handleSort("nom_etablissement")}
               >
@@ -476,7 +539,7 @@ export default function SchoolsListPage() {
                   Établissement <SortIcon field="nom_etablissement" />
                 </div>
               </th>
-              <th 
+              <th
                 className="py-3 px-4 cursor-pointer hover:bg-gray-100"
                 onClick={() => handleSort("localisation")}
               >
@@ -486,7 +549,7 @@ export default function SchoolsListPage() {
               </th>
               <th className="py-3 px-4">Effectifs</th>
               <th className="py-3 px-4">Équipements</th>
-              <th 
+              <th
                 className="py-3 px-4 cursor-pointer hover:bg-gray-100"
                 onClick={() => handleSort("statut")}
               >
@@ -502,17 +565,22 @@ export default function SchoolsListPage() {
               <tr key={school.id} className="hover:bg-gray-50 transition">
                 <td className="py-4 px-4">
                   <div>
-                    <div className="font-medium text-gray-900">{school.nom_etablissement}</div>
+                    <div className="font-medium text-gray-900">
+                      {school.nom_etablissement}
+                    </div>
                     <div className="flex items-center text-sm text-gray-500 mt-1">
                       <MapPin size={14} className="mr-1" />
-                      {school.localisation?.region || 'Non spécifié'}, {school.localisation?.prefecture || 'Non spécifié'}
+                      {school.localisation?.region || "Non spécifié"},{" "}
+                      {school.localisation?.prefecture || "Non spécifié"}
                     </div>
                   </div>
                 </td>
                 <td className="py-4 px-4">
                   <div className="text-sm text-gray-600">
-                    <div>Région: {school.localisation?.region || 'N/A'}</div>
-                    <div>Préfecture: {school.localisation?.prefecture || 'N/A'}</div>
+                    <div>Région: {school.localisation?.region || "N/A"}</div>
+                    <div>
+                      Préfecture: {school.localisation?.prefecture || "N/A"}
+                    </div>
                   </div>
                 </td>
                 <td className="py-4 px-4">
@@ -520,51 +588,89 @@ export default function SchoolsListPage() {
                     <div>
                       <div className="flex items-center text-sm text-gray-700">
                         <Users size={14} className="mr-1" />
-                        {((school.effectif?.sommedenb_eff_g || 0) + (school.effectif?.sommedenb_eff_f || 0)).toLocaleString()} élèves
+                        {(
+                          (school.effectif?.sommedenb_eff_g || 0) +
+                          (school.effectif?.sommedenb_eff_f || 0)
+                        ).toLocaleString()}{" "}
+                        élèves
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
-                        {((school.effectif?.sommedenb_ens_h || 0) + (school.effectif?.sommedenb_ens_f || 0)).toLocaleString()} enseignants
+                        {(
+                          (school.effectif?.sommedenb_ens_h || 0) +
+                          (school.effectif?.sommedenb_ens_f || 0)
+                        ).toLocaleString()}{" "}
+                        enseignants
                       </div>
                     </div>
                   </div>
                 </td>
                 <td className="py-4 px-4">
                   <div className="flex gap-2">
-                    <div className={`p-1.5 rounded ${school.equipement?.existe_elect ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}`} title="Électricité">
+                    <div
+                      className={`p-1.5 rounded ${
+                        school.equipement?.existe_elect
+                          ? "bg-green-100 text-green-700"
+                          : "bg-gray-100 text-gray-400"
+                      }`}
+                      title="Électricité"
+                    >
                       <Zap size={14} />
                     </div>
-                    <div className={`p-1.5 rounded ${school.equipement?.eau ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-400'}`} title="Eau">
+                    <div
+                      className={`p-1.5 rounded ${
+                        school.equipement?.eau
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-gray-100 text-gray-400"
+                      }`}
+                      title="Eau"
+                    >
                       <Droplets size={14} />
                     </div>
-                    <div className={`p-1.5 rounded ${school.equipement?.existe_latrine ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-400'}`} title="Sanitaires">
+                    <div
+                      className={`p-1.5 rounded ${
+                        school.equipement?.existe_latrine
+                          ? "bg-amber-100 text-amber-700"
+                          : "bg-gray-100 text-gray-400"
+                      }`}
+                      title="Sanitaires"
+                    >
                       <Home size={14} />
                     </div>
                   </div>
                 </td>
                 <td className="py-4 px-4">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    school.statut?.libelle_type_statut_etab === "Public" 
-                      ? "bg-blue-100 text-blue-800" 
-                      : (school.statut?.libelle_type_statut_etab?.includes("Privé"))
-                      ? "bg-purple-100 text-purple-800"
-                      : school.statut?.libelle_type_statut_etab === "Communautaire"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-gray-100 text-gray-800"
-                  }`}>
-                    {school.statut?.libelle_type_statut_etab || 'Non spécifié'}
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      school.statut?.libelle_type_statut_etab === "Public"
+                        ? "bg-blue-100 text-blue-800"
+                        : school.statut?.libelle_type_statut_etab?.includes(
+                            "Privé"
+                          )
+                        ? "bg-purple-100 text-purple-800"
+                        : school.statut?.libelle_type_statut_etab ===
+                          "Communautaire"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}
+                  >
+                    {school.statut?.libelle_type_statut_etab || "Non spécifié"}
                   </span>
                 </td>
                 <td className="py-4 px-4 text-right">
                   <div className="flex gap-1 justify-end">
                     <button
-                      onClick={() => router.push(`/dashboard/school/edit/${school.id}`)}
+                      onClick={() =>
+                        router.push(`/dashboard/school/edit/${school.id}`)
+                      }
                       className="p-1.5 text-gray-400 hover:text-blue-600 rounded hover:bg-blue-50 transition"
                       title="Modifier l'établissement"
                     >
                       <Edit3 size={16} />
                     </button>
                     <button
-                      onClick={() => handleDelete(school.id, school.nom_etablissement)}
+                      onClick={() =>
+                        handleDelete(school.id, school.nom_etablissement)
+                      }
                       className="p-1.5 text-gray-400 hover:text-red-600 rounded hover:bg-red-50 transition"
                       title="Supprimer l'établissement"
                     >
@@ -581,7 +687,9 @@ export default function SchoolsListPage() {
           <div className="text-center py-12">
             <School size={48} className="mx-auto text-gray-300 mb-3" />
             <p className="text-gray-500">Aucun établissement trouvé</p>
-            <p className="text-sm text-gray-400 mt-1">Essayez de modifier vos filtres de recherche</p>
+            <p className="text-sm text-gray-400 mt-1">
+              Essayez de modifier vos filtres de recherche
+            </p>
           </div>
         )}
       </div>
@@ -590,7 +698,9 @@ export default function SchoolsListPage() {
       {sortedSchools.length > 0 && (
         <div className="flex justify-between items-center mt-6">
           <p className="text-sm text-gray-500">
-            Affichage de {((currentPage - 1) * itemsPerPage) + 1} à {Math.min(currentPage * itemsPerPage, totalItems)} sur {totalItems} établissements
+            Affichage de {(currentPage - 1) * itemsPerPage + 1} à{" "}
+            {Math.min(currentPage * itemsPerPage, totalItems)} sur {totalItems}{" "}
+            établissements
           </p>
           <div className="flex gap-2">
             <button

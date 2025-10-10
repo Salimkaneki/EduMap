@@ -36,19 +36,23 @@ export default function ModernSearchBar({
   isLoading = false,
   className = "",
 }: ModernSearchBarProps) {
+  const [localFilters, setLocalFilters] = useState<SearchFilters>({
+    ...filters,
+  });
   const [searchTerm, setSearchTerm] = useState(filters.nom_etablissement || "");
   const [showFilters, setShowFilters] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   useEffect(() => {
+    setLocalFilters({ ...filters });
     setSearchTerm(filters.nom_etablissement || "");
-  }, [filters.nom_etablissement]);
+  }, [filters]);
 
-  const handleFilterChange = (
+  const handleLocalFilterChange = (
     key: keyof SearchFilters,
     value: string | boolean | undefined
   ) => {
-    const newFilters = { ...filters };
+    const newFilters = { ...localFilters };
 
     if (value === "" || value === undefined) {
       delete newFilters[key];
@@ -56,26 +60,35 @@ export default function ModernSearchBar({
       (newFilters as Record<string, unknown>)[key] = value;
     }
 
-    onFiltersChange(newFilters);
+    setLocalFilters(newFilters);
+    if (key === "nom_etablissement") {
+      setSearchTerm((value as string) || "");
+    }
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    handleFilterChange("nom_etablissement", searchTerm.trim() || undefined);
+    const searchFilters = {
+      ...localFilters,
+      nom_etablissement: searchTerm.trim() || undefined,
+      page: 1,
+      per_page: filters.per_page,
+    };
+    onFiltersChange(searchFilters);
   };
 
   const getActiveFiltersCount = () => {
-    return Object.keys(filters).filter(
+    return Object.keys(localFilters).filter(
       (key) =>
-        filters[key as keyof SearchFilters] !== undefined &&
-        filters[key as keyof SearchFilters] !== "" &&
+        localFilters[key as keyof SearchFilters] !== undefined &&
+        localFilters[key as keyof SearchFilters] !== "" &&
         key !== "page" &&
         key !== "per_page"
     ).length;
   };
 
   const clearFilter = (key: keyof SearchFilters) => {
-    handleFilterChange(key, undefined);
+    handleLocalFilterChange(key, undefined);
     if (key === "nom_etablissement") {
       setSearchTerm("");
     }
@@ -95,7 +108,7 @@ export default function ModernSearchBar({
     icon?: React.ComponentType<{ className?: string }>;
   }) => {
     const isOpen = activeDropdown === filterKey;
-    const currentValue = filters[filterKey] as string;
+    const currentValue = localFilters[filterKey] as string;
     const hasValue = !!currentValue;
 
     return (
@@ -130,7 +143,7 @@ export default function ModernSearchBar({
                 <button
                   className="w-full text-left px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-md transition-colors"
                   onClick={() => {
-                    handleFilterChange(filterKey, undefined);
+                    handleLocalFilterChange(filterKey, undefined);
                     setActiveDropdown(null);
                   }}
                 >
@@ -146,7 +159,7 @@ export default function ModernSearchBar({
                         : "text-slate-700 hover:bg-slate-50"
                     )}
                     onClick={() => {
-                      handleFilterChange(filterKey, option);
+                      handleLocalFilterChange(filterKey, option);
                       setActiveDropdown(null);
                     }}
                   >
@@ -174,7 +187,7 @@ export default function ModernSearchBar({
     filterKey: keyof SearchFilters;
     icon: React.ComponentType<{ className?: string }>;
   }) => {
-    const isChecked = filters[filterKey] === true;
+    const isChecked = localFilters[filterKey] === true;
 
     return (
       <label className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
@@ -182,7 +195,10 @@ export default function ModernSearchBar({
           type="checkbox"
           checked={isChecked}
           onChange={(e) =>
-            handleFilterChange(filterKey, e.target.checked ? true : undefined)
+            handleLocalFilterChange(
+              filterKey,
+              e.target.checked ? true : undefined
+            )
           }
           className="rounded border-slate-300 text-slate-900 focus:ring-slate-500 focus:ring-offset-0"
         />
@@ -252,7 +268,7 @@ export default function ModernSearchBar({
         {getActiveFiltersCount() > 0 && (
           <div className="mt-4 flex flex-wrap gap-2 items-center">
             <span className="text-sm text-slate-600 font-medium">Actifs:</span>
-            {Object.entries(filters).map(([key, value]) => {
+            {Object.entries(localFilters).map(([key, value]) => {
               if (!value || key === "page" || key === "per_page") return null;
 
               const getFilterLabel = () => {
@@ -300,7 +316,11 @@ export default function ModernSearchBar({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={onReset}
+                onClick={() => {
+                  setLocalFilters({ page: 1, per_page: filters.per_page });
+                  setSearchTerm("");
+                  onReset();
+                }}
                 className="h-6 px-2 text-xs text-slate-500 hover:text-slate-700"
               >
                 <RefreshCw className="w-3 h-3 mr-1" />

@@ -108,11 +108,6 @@ export default function DashboardPage() {
     },
   ];
 
-  const recentData = [
-    { id: 1, text: `${statsData.total_etablissements.toLocaleString()} établissements cartographiés`, time: "Données actuelles" },
-    { id: 2, text: `${statsData.equipements.avec_eau.toLocaleString()} établissements avec accès à l'eau`, time: "Équipements" },
-    { id: 3, text: `${statsData.infrastructures.total_salles_classes} salles de classe au total`, time: "Infrastructures" },
-  ];
 
   return (
     <div className="min-h-screen bg-white p-6">
@@ -171,28 +166,6 @@ export default function DashboardPage() {
       </section>
 
 
-      {/* Quick Actions */}
-      <section className="mt-8">
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Actions rapides</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {[
-            { label: "Ajouter école", icon: School },
-            { label: "Générer rapport", icon: BarChart3 },
-            { label: "Analyser zone", icon: Map },
-            { label: "Voir données", icon: Eye },
-          ].map((action, index) => (
-            <button
-              key={index}
-              className="flex flex-col items-center justify-center p-3 bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition"
-            >
-              <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center text-gray-700 mb-2">
-                <action.icon size={16} />
-              </div>
-              <span className="text-xs text-gray-700 text-center">{action.label}</span>
-            </button>
-          ))}
-        </div>
-      </section>
     </div>
   );
 }
