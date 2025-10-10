@@ -50,11 +50,13 @@ export interface UpdateAdminData {
 }
 
 /**
- * Récupérer tous les administrateurs avec pagination
+ * Récupérer tous les administrateurs avec pagination et filtres
  */
 export async function getAdmins(
   page: number = 1,
-  perPage: number = 10
+  perPage: number = 10,
+  search?: string,
+  role?: string
 ): Promise<AdminResponse> {
   const cookieStore = await cookies();
   const token = cookieStore.get("admin_token")?.value;
@@ -64,17 +66,19 @@ export async function getAdmins(
   }
 
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/admin/admins?page=${page}&per_page=${perPage}`,
-      {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    let url = `${API_BASE_URL}/admin/admins`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("Response status:", response.status);
+    console.log("Response ok:", response.ok);
 
     if (!response.ok) {
       let errorMessage =
@@ -82,8 +86,10 @@ export async function getAdmins(
 
       try {
         const errorData = await response.json();
+        console.log("Error response data:", errorData);
         errorMessage = errorData.error || errorData.message || errorMessage;
       } catch (parseError) {
+        console.log("Error parsing error response:", parseError);
         errorMessage = `Erreur HTTP ${response.status}: ${response.statusText}`;
       }
 
@@ -91,7 +97,59 @@ export async function getAdmins(
     }
 
     const data = await response.json();
-    return data;
+    console.log("Success response data:", data);
+    console.log("Data type:", typeof data);
+    console.log("Data keys:", Object.keys(data));
+
+    // Validate response structure
+    if (!data || typeof data !== "object") {
+      throw new Error(
+        "Réponse invalide: les données reçues ne sont pas un objet"
+      );
+    }
+
+    // Check if data is directly an array of admins
+    if (Array.isArray(data)) {
+      console.log("API returned direct array, wrapping it...");
+      return {
+        data: data,
+        current_page: 1,
+        last_page: 1,
+        per_page: data.length,
+        total: data.length,
+      };
+    }
+
+    // Check for common response structures
+    if (Array.isArray(data.data)) {
+      console.log("API returned standard paginated response");
+      return data;
+    }
+
+    // Check if data has other array properties that might contain admins
+    const arrayKeys = Object.keys(data).filter((key) =>
+      Array.isArray(data[key])
+    );
+    if (arrayKeys.length > 0) {
+      console.log("Found array properties:", arrayKeys);
+      // Assume the first array is the admins data
+      const adminsArray = data[arrayKeys[0]];
+      console.log("Using array from property:", arrayKeys[0]);
+      return {
+        data: adminsArray,
+        current_page: 1,
+        last_page: 1,
+        per_page: adminsArray.length,
+        total: adminsArray.length,
+      };
+    }
+
+    console.error("Unexpected response structure:", data);
+    throw new Error(
+      `Réponse invalide: structure inattendue. Clés disponibles: ${Object.keys(
+        data
+      ).join(", ")}`
+    );
   } catch (error) {
     console.error("Erreur lors de la récupération des administrateurs:", error);
     throw error;
@@ -101,7 +159,7 @@ export async function getAdmins(
 /**
  * Créer un nouvel administrateur
  */
-export async function createAdmin(adminData: CreateAdminData): Promise<Admin> {
+export async function createAdmin(formData: FormData): Promise<Admin> {
   const cookieStore = await cookies();
   const token = cookieStore.get("admin_token")?.value;
 
@@ -110,6 +168,13 @@ export async function createAdmin(adminData: CreateAdminData): Promise<Admin> {
   }
 
   try {
+    const adminData = {
+      name: formData.get("name") as string,
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+      role: formData.get("role") as string,
+    };
+
     const response = await fetch(`${API_BASE_URL}/admin/admins`, {
       method: "POST",
       headers: {
@@ -145,10 +210,7 @@ export async function createAdmin(adminData: CreateAdminData): Promise<Admin> {
 /**
  * Mettre à jour un administrateur
  */
-export async function updateAdmin(
-  id: number,
-  adminData: UpdateAdminData
-): Promise<Admin> {
+export async function updateAdmin(formData: FormData): Promise<Admin> {
   const cookieStore = await cookies();
   const token = cookieStore.get("admin_token")?.value;
 
@@ -157,6 +219,18 @@ export async function updateAdmin(
   }
 
   try {
+    const id = formData.get("id") as string;
+    const adminData: any = {
+      name: formData.get("name") as string,
+      email: formData.get("email") as string,
+      role: formData.get("role") as string,
+    };
+
+    const password = formData.get("password") as string;
+    if (password) {
+      adminData.password = password;
+    }
+
     const response = await fetch(`${API_BASE_URL}/admin/admins/${id}`, {
       method: "PUT",
       headers: {

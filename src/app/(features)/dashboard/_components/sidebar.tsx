@@ -80,8 +80,8 @@ const Sidebar = () => {
       case 'ecoles-modifier':
         router.push('/dashboard/school');
         break;
-      case 'utilisateurs':
-        router.push('/dashboard/users');
+      case 'Administrateurs':
+        router.push('/dashboard/admin');
         break;
       default:
         break;
@@ -118,7 +118,7 @@ const Sidebar = () => {
         { id: 'ecoles-liste', label: 'Liste', icon: List }
       ]
     },
-    { id: 'utilisateurs', label: 'Utilisateurs', icon: Users, type: 'single' }
+    { id: 'Administrateurs', label: 'Administrateurs', icon: Users, type: 'single' }
   ];
 
   return (

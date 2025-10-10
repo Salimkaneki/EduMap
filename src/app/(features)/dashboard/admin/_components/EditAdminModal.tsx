@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { X, User, Mail, Lock, Shield } from "lucide-react";
-import { updateAdmin, UpdateAdminData, Admin } from "../_services/adminService";
+import { updateAdmin, Admin } from "../_services/adminService";
 
 interface EditAdminModalProps {
   isOpen: boolean;
@@ -17,42 +17,17 @@ export default function EditAdminModal({
   onSuccess,
   admin,
 }: EditAdminModalProps) {
-  const [formData, setFormData] = useState<UpdateAdminData>({
-    name: "",
-    email: "",
-    role: "admin",
-    password: "",
-  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Reset form when admin changes
-  useEffect(() => {
-    if (admin) {
-      setFormData({
-        name: admin.name,
-        email: admin.email,
-        role: admin.role,
-        password: "", // Don't pre-fill password
-      });
-    }
-  }, [admin]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (formData: FormData) => {
     if (!admin) return;
 
     setIsLoading(true);
     setError(null);
 
     try {
-      const updateData = { ...formData };
-      // Remove password if empty
-      if (!updateData.password) {
-        delete updateData.password;
-      }
-
-      await updateAdmin(admin.id, updateData);
+      await updateAdmin(formData);
       onSuccess();
       onClose();
     } catch (err) {
@@ -60,16 +35,6 @@ export default function EditAdminModal({
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
   };
 
   if (!isOpen || !admin) return null;
@@ -91,7 +56,9 @@ export default function EditAdminModal({
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form action={handleSubmit} className="p-6 space-y-4">
+          <input type="hidden" name="id" value={admin.id} />
+
           {/* Name */}
           <div>
             <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
@@ -101,8 +68,7 @@ export default function EditAdminModal({
             <input
               type="text"
               name="name"
-              value={formData.name}
-              onChange={handleInputChange}
+              defaultValue={admin.name}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Entrez le nom complet"
               required
@@ -118,8 +84,7 @@ export default function EditAdminModal({
             <input
               type="email"
               name="email"
-              value={formData.email}
-              onChange={handleInputChange}
+              defaultValue={admin.email}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="admin@edumap.tg"
               required
@@ -135,8 +100,6 @@ export default function EditAdminModal({
             <input
               type="password"
               name="password"
-              value={formData.password}
-              onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Laisser vide pour conserver le mot de passe actuel"
             />
@@ -153,8 +116,7 @@ export default function EditAdminModal({
             </label>
             <select
               name="role"
-              value={formData.role}
-              onChange={handleInputChange}
+              defaultValue={admin.role}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="admin">Administrateur</option>
