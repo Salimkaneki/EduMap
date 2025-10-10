@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Search,
   Filter,
@@ -34,10 +34,11 @@ const API_BASE_URL =
 export default function SchoolsListPage() {
   const router = useRouter();
   const [schoolsData, setSchoolsData] = useState<Etablissement[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const [pendingSearch, setPendingSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("Tous");
   const [regionFilter, setRegionFilter] = useState("Toutes");
   const [prefectureFilter, setPrefectureFilter] = useState("Toutes");
@@ -66,27 +67,6 @@ export default function SchoolsListPage() {
     fetchFilterOptions();
   }, []);
 
-  // Debounce search term - attendre 800ms après la dernière saisie
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-    }, 800); // 800ms delay pour éviter les requêtes trop fréquentes
-
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
-
-  useEffect(() => {
-    fetchSchools();
-  }, [
-    currentPage,
-    debouncedSearchTerm,
-    statusFilter,
-    regionFilter,
-    prefectureFilter,
-    milieuFilter,
-    systemeFilter,
-  ]);
-
   const fetchFilterOptions = async () => {
     try {
       const response = await fetch(
@@ -112,94 +92,125 @@ export default function SchoolsListPage() {
     }
   };
 
-  const fetchSchools = async () => {
-    // Annuler la requête précédente si elle existe
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    // Créer un nouveau controller pour cette requête
-    abortControllerRef.current = new AbortController();
-    const signal = abortControllerRef.current.signal;
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      let response: Response;
-      let url: string;
-
-      // Si on a des filtres actifs, utiliser la recherche
-      if (
-        debouncedSearchTerm ||
-        statusFilter !== "Tous" ||
-        regionFilter !== "Toutes" ||
-        prefectureFilter !== "Toutes" ||
-        milieuFilter !== "Tous" ||
-        systemeFilter !== "Tous"
-      ) {
-        const params = new URLSearchParams();
-        params.append("page", currentPage.toString());
-        params.append("per_page", itemsPerPage.toString());
-
-        if (debouncedSearchTerm) {
-          params.append("nom_etablissement", debouncedSearchTerm);
-        }
-
-        if (statusFilter !== "Tous") {
-          params.append("libelle_type_statut_etab", statusFilter);
-        }
-
-        if (regionFilter !== "Toutes") {
-          params.append("region", regionFilter);
-        }
-
-        if (prefectureFilter !== "Toutes") {
-          params.append("prefecture", prefectureFilter);
-        }
-
-        if (milieuFilter !== "Tous") {
-          params.append("milieu", milieuFilter);
-        }
-
-        if (systemeFilter !== "Tous") {
-          params.append("systeme", systemeFilter);
-        }
-
-        url = `${API_BASE_URL}/etablissements/search?${params.toString()}`;
-      } else {
-        // Sinon, récupérer tous les établissements
-        url = `${API_BASE_URL}/etablissements?page=${currentPage}&per_page=${itemsPerPage}`;
+  const fetchSchools = useCallback(
+    async (customSearchTerm?: string, customPage?: number) => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
       }
-
-      response = await fetch(url, {
-        signal,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Erreur API: ${response.status}`);
+      abortControllerRef.current = new AbortController();
+      const signal = abortControllerRef.current.signal;
+      try {
+        setLoading(true);
+        setError(null);
+        let response: Response;
+        let url: string;
+        const pageToUse = customPage ?? currentPage;
+        const searchToUse = customSearchTerm ?? searchTerm;
+        // Si on a des filtres actifs ou une recherche, utiliser la recherche
+        if (
+          (searchToUse && searchToUse.trim() !== "") ||
+          statusFilter !== "Tous" ||
+          regionFilter !== "Toutes" ||
+          prefectureFilter !== "Toutes" ||
+          milieuFilter !== "Tous" ||
+          systemeFilter !== "Tous"
+        ) {
+          const params = new URLSearchParams();
+          params.append("page", pageToUse.toString());
+          params.append("per_page", itemsPerPage.toString());
+          if (searchToUse && searchToUse.trim() !== "") {
+            params.append("nom_etablissement", searchToUse);
+          }
+          if (statusFilter !== "Tous") {
+            params.append("libelle_type_statut_etab", statusFilter);
+          }
+          if (regionFilter !== "Toutes") {
+            params.append("region", regionFilter);
+          }
+          if (prefectureFilter !== "Toutes") {
+            params.append("prefecture", prefectureFilter);
+          }
+          if (milieuFilter !== "Tous") {
+            params.append("milieu", milieuFilter);
+          }
+          if (systemeFilter !== "Tous") {
+            params.append("systeme", systemeFilter);
+          }
+          url = `${API_BASE_URL}/etablissements/search?${params.toString()}`;
+        } else {
+          url = `${API_BASE_URL}/etablissements?page=${pageToUse}&per_page=${itemsPerPage}`;
+        }
+        response = await fetch(url, {
+          signal,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (!response.ok) {
+          throw new Error(`Erreur API: ${response.status}`);
+        }
+        const data: EtablissementResponse = await response.json();
+        setSchoolsData(data.data);
+        setTotalPages(data.last_page);
+        setTotalItems(data.total);
+      } catch (err) {
+        if (err instanceof Error && err.name === "AbortError") {
+          return;
+        }
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Erreur lors du chargement des établissements"
+        );
+      } finally {
+        setLoading(false);
+        setInitialLoading(false);
       }
+    },
+    [
+      searchTerm,
+      statusFilter,
+      regionFilter,
+      prefectureFilter,
+      milieuFilter,
+      systemeFilter,
+      currentPage,
+      itemsPerPage,
+    ]
+  );
 
-      const data: EtablissementResponse = await response.json();
-      setSchoolsData(data.data);
-      setTotalPages(data.last_page);
-      setTotalItems(data.total);
-    } catch (err) {
-      if (err instanceof Error && err.name === "AbortError") {
-        // Requête annulée, ignorer
-        return;
-      }
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Erreur lors du chargement des établissements"
-      );
-    } finally {
-      setLoading(false);
-    }
+  // Initial load only (pas de recherche automatique)
+  useEffect(() => {
+    const loadInitialData = async () => {
+      await fetchSchools("");
+    };
+    loadInitialData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSearch = () => {
+    setSearchTerm(pendingSearch);
+    setCurrentPage(1);
+    fetchSchools(pendingSearch, 1);
+  };
+
+  const handleFilterChange = (filterType: string, value: string) => {
+    if (filterType === "status") setStatusFilter(value);
+    else if (filterType === "region") setRegionFilter(value);
+    else if (filterType === "prefecture") setPrefectureFilter(value);
+    else if (filterType === "milieu") setMilieuFilter(value);
+    else if (filterType === "systeme") setSystemeFilter(value);
+    // Ne pas lancer la recherche automatiquement
+  };
+
+  const handleApplyFilters = () => {
+    setCurrentPage(1);
+    fetchSchools(searchTerm, 1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    fetchSchools(searchTerm, page);
   };
 
   const handleSort = (field: keyof Etablissement) => {
@@ -272,7 +283,11 @@ export default function SchoolsListPage() {
     return 0;
   });
 
-  if (loading) {
+  // Pagination
+  const paginatedSchools = sortedSchools;
+
+  // Show initial loading screen
+  if (initialLoading) {
     return (
       <div className="min-h-screen bg-white p-6 flex items-center justify-center">
         <div className="text-center">
@@ -282,28 +297,6 @@ export default function SchoolsListPage() {
       </div>
     );
   }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-white p-6 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">Erreur: {error}</p>
-          <button
-            onClick={() => fetchSchools()}
-            className="px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800"
-          >
-            Réessayer
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // Pagination
-  const paginatedSchools = sortedSchools.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
 
   return (
     <div className="min-h-screen bg-white p-6">
@@ -335,18 +328,39 @@ export default function SchoolsListPage() {
       <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6 shadow-sm">
         {/* Search Bar */}
         <div className="mb-6">
-          <div className="relative max-w-md">
-            <Search
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
-              size={20}
-            />
-            <input
-              type="text"
-              placeholder="Rechercher un établissement..."
-              className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-gray-50 focus:bg-white transition"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+          <div className="flex gap-2 max-w-md">
+            <div className="relative flex-1">
+              <Search
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={20}
+              />
+              <input
+                type="text"
+                placeholder="Rechercher un établissement..."
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-gray-50 focus:bg-white transition"
+                value={pendingSearch}
+                onChange={(e) => setPendingSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSearch();
+                  }
+                }}
+              />
+            </div>
+            <button
+              onClick={handleSearch}
+              disabled={loading}
+              className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  <span>Recherche...</span>
+                </>
+              ) : (
+                "Rechercher"
+              )}
+            </button>
           </div>
         </div>
 
@@ -361,7 +375,7 @@ export default function SchoolsListPage() {
             <select
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white"
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) => handleFilterChange("status", e.target.value)}
             >
               <option value="Tous">Tous les statuts</option>
               {filterOptions?.types_statut.map((statut) => (
@@ -381,7 +395,7 @@ export default function SchoolsListPage() {
             <select
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white"
               value={regionFilter}
-              onChange={(e) => setRegionFilter(e.target.value)}
+              onChange={(e) => handleFilterChange("region", e.target.value)}
             >
               <option value="Toutes">Toutes les régions</option>
               {filterOptions?.regions.map((region) => (
@@ -401,7 +415,7 @@ export default function SchoolsListPage() {
             <select
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white"
               value={prefectureFilter}
-              onChange={(e) => setPrefectureFilter(e.target.value)}
+              onChange={(e) => handleFilterChange("prefecture", e.target.value)}
             >
               <option value="Toutes">Toutes les préfectures</option>
               {filterOptions?.prefectures.map((prefecture) => (
@@ -421,7 +435,7 @@ export default function SchoolsListPage() {
             <select
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white"
               value={milieuFilter}
-              onChange={(e) => setMilieuFilter(e.target.value)}
+              onChange={(e) => handleFilterChange("milieu", e.target.value)}
             >
               <option value="Tous">Tous les milieux</option>
               {filterOptions?.types_milieu.map((milieu) => (
@@ -444,7 +458,7 @@ export default function SchoolsListPage() {
               <select
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white"
                 value={systemeFilter}
-                onChange={(e) => setSystemeFilter(e.target.value)}
+                onChange={(e) => handleFilterChange("systeme", e.target.value)}
               >
                 <option value="Tous">Tous les systèmes</option>
                 {filterOptions?.types_systeme.map((systeme) => (
@@ -472,9 +486,22 @@ export default function SchoolsListPage() {
               <Filter size={16} />
               Réinitialiser
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition text-sm text-gray-700">
-              <Filter size={16} />
-              Plus de filtres
+            <button
+              onClick={handleApplyFilters}
+              disabled={loading}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  <span>Chargement...</span>
+                </>
+              ) : (
+                <>
+                  <Filter size={16} />
+                  Appliquer les filtres
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -706,14 +733,14 @@ export default function SchoolsListPage() {
             <button
               className="px-3 py-1.5 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
               disabled={currentPage === 1}
-              onClick={() => setCurrentPage(currentPage - 1)}
+              onClick={() => handlePageChange(currentPage - 1)}
             >
               Précédent
             </button>
             <button
               className="px-3 py-1.5 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
               disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(currentPage + 1)}
+              onClick={() => handlePageChange(currentPage + 1)}
             >
               Suivant
             </button>

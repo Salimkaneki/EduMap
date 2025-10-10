@@ -143,16 +143,47 @@ export default function AdminPage() {
   }
 
   if (error) {
+    // Check if it's an authorization error
+    const isUnauthorized =
+      error.includes("Unauthorized") || error.includes("403");
+
     return (
       <div className="min-h-screen bg-white p-6 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">Erreur: {error}</p>
-          <button
-            onClick={() => fetchAdmins()}
-            className="px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800"
-          >
-            Réessayer
-          </button>
+        <div className="text-center max-w-md">
+          {isUnauthorized ? (
+            <>
+              <div className="mb-4">
+                <Shield size={64} className="mx-auto text-red-500 mb-4" />
+              </div>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+                Accès refusé
+              </h2>
+              <p className="text-gray-600 mb-4">
+                Vous n'avez pas les permissions nécessaires pour accéder à cette
+                page.
+              </p>
+              <p className="text-sm text-gray-500 mb-6">
+                Seuls les Super Administrateurs peuvent gérer les
+                administrateurs.
+              </p>
+              <button
+                onClick={() => window.history.back()}
+                className="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition"
+              >
+                Retour
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="text-red-600 mb-4">Erreur: {error}</p>
+              <button
+                onClick={() => fetchAdmins()}
+                className="px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800"
+              >
+                Réessayer
+              </button>
+            </>
+          )}
         </div>
       </div>
     );

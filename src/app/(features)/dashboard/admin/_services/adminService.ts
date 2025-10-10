@@ -87,10 +87,23 @@ export async function getAdmins(
       try {
         const errorData = await response.json();
         console.log("Error response data:", errorData);
-        errorMessage = errorData.error || errorData.message || errorMessage;
+
+        // Handle authorization errors specifically
+        if (response.status === 403) {
+          errorMessage =
+            errorData.message || "Unauthorized. Super admin access required.";
+        } else {
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        }
       } catch (parseError) {
         console.log("Error parsing error response:", parseError);
-        errorMessage = `Erreur HTTP ${response.status}: ${response.statusText}`;
+
+        // Handle 403 without JSON response
+        if (response.status === 403) {
+          errorMessage = "Unauthorized. Super admin access required.";
+        } else {
+          errorMessage = `Erreur HTTP ${response.status}: ${response.statusText}`;
+        }
       }
 
       throw new Error(errorMessage);
@@ -191,9 +204,19 @@ export async function createAdmin(formData: FormData): Promise<Admin> {
 
       try {
         const errorData = await response.json();
-        errorMessage = errorData.error || errorData.message || errorMessage;
+
+        if (response.status === 403) {
+          errorMessage =
+            errorData.message || "Unauthorized. Super admin access required.";
+        } else {
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        }
       } catch (parseError) {
-        errorMessage = `Erreur HTTP ${response.status}: ${response.statusText}`;
+        if (response.status === 403) {
+          errorMessage = "Unauthorized. Super admin access required.";
+        } else {
+          errorMessage = `Erreur HTTP ${response.status}: ${response.statusText}`;
+        }
       }
 
       throw new Error(errorMessage);
@@ -247,9 +270,19 @@ export async function updateAdmin(formData: FormData): Promise<Admin> {
 
       try {
         const errorData = await response.json();
-        errorMessage = errorData.error || errorData.message || errorMessage;
+
+        if (response.status === 403) {
+          errorMessage =
+            errorData.message || "Unauthorized. Super admin access required.";
+        } else {
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        }
       } catch (parseError) {
-        errorMessage = `Erreur HTTP ${response.status}: ${response.statusText}`;
+        if (response.status === 403) {
+          errorMessage = "Unauthorized. Super admin access required.";
+        } else {
+          errorMessage = `Erreur HTTP ${response.status}: ${response.statusText}`;
+        }
       }
 
       throw new Error(errorMessage);
@@ -290,9 +323,19 @@ export async function deleteAdmin(id: number): Promise<any> {
 
       try {
         const errorData = await response.json();
-        errorMessage = errorData.error || errorData.message || errorMessage;
+
+        if (response.status === 403) {
+          errorMessage =
+            errorData.message || "Unauthorized. Super admin access required.";
+        } else {
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        }
       } catch (parseError) {
-        errorMessage = `Erreur HTTP ${response.status}: ${response.statusText}`;
+        if (response.status === 403) {
+          errorMessage = "Unauthorized. Super admin access required.";
+        } else {
+          errorMessage = `Erreur HTTP ${response.status}: ${response.statusText}`;
+        }
       }
 
       throw new Error(errorMessage);
