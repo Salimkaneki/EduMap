@@ -58,8 +58,8 @@ const Sidebar = () => {
       setActiveItem('ecoles-creer');
     } else if (pathname.startsWith('/dashboard/school/edit/')) {
       setActiveItem('ecoles-modifier');
-    } else if (pathname.includes('/users')) {
-      setActiveItem('utilisateurs');
+    } else if (pathname.includes('dashboard/admin')) {
+      setActiveItem('Administrateurs');
     }
   }, [pathname]);
 
