@@ -2,13 +2,13 @@
 
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-  MapPin, 
+import {
+  MapPin,
   Navigation,
   Globe,
   Map,
   Compass,
-  ExternalLink
+  ExternalLink,
 } from "lucide-react";
 import { Etablissement } from "../../_model/etablissement";
 
@@ -17,15 +17,15 @@ interface LocationMapProps {
 }
 
 export default function LocationMap({ etablissement }: LocationMapProps) {
-  const location = etablissement.localisation;
-  const latitude = parseFloat(etablissement.latitude);
-  const longitude = parseFloat(etablissement.longitude);
+  const location = etablissement?.localisation;
+  const latitude = parseFloat(etablissement?.latitude || "0");
+  const longitude = parseFloat(etablissement?.longitude || "0");
 
-  const isValidCoordinates = !isNaN(latitude) && !isNaN(longitude) && 
-                           latitude !== 0 && longitude !== 0;
+  const isValidCoordinates =
+    !isNaN(latitude) && !isNaN(longitude) && latitude !== 0 && longitude !== 0;
 
-  const googleMapsUrl = isValidCoordinates 
-    ? `https://www.google.com/maps?q=${latitude},${longitude}` 
+  const googleMapsUrl = isValidCoordinates
+    ? `https://www.google.com/maps?q=${latitude},${longitude}`
     : null;
 
   return (
@@ -50,28 +50,40 @@ export default function LocationMap({ etablissement }: LocationMapProps) {
             <div className="flex items-start space-x-3">
               <Compass className="h-5 w-5 text-blue-600 mt-1" />
               <div className="flex-1">
-                <h4 className="font-medium text-gray-900 mb-3">Adresse administrative</h4>
+                <h4 className="font-medium text-gray-900 mb-3">
+                  Adresse administrative
+                </h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Région:</span>
-                    <span className="font-medium text-gray-900">{location.region}</span>
+                    <span className="font-medium text-gray-900">
+                      {location?.region || "N/A"}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Préfecture:</span>
-                    <span className="font-medium text-gray-900">{location.prefecture}</span>
+                    <span className="font-medium text-gray-900">
+                      {location?.prefecture || "N/A"}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Canton/Village:</span>
-                    <span className="font-medium text-gray-900">{location.canton_village_autonome}</span>
+                    <span className="font-medium text-gray-900">
+                      {location?.canton_village_autonome || "N/A"}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Ville/Quartier:</span>
-                    <span className="font-medium text-gray-900">{location.ville_village_quartier}</span>
+                    <span className="font-medium text-gray-900">
+                      {location?.ville_village_quartier || "N/A"}
+                    </span>
                   </div>
-                  {location.commune_etab && (
+                  {location?.commune_etab && (
                     <div className="flex justify-between">
                       <span className="text-gray-600">Commune:</span>
-                      <span className="font-medium text-gray-900">{location.commune_etab}</span>
+                      <span className="font-medium text-gray-900">
+                        {location.commune_etab}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -84,20 +96,28 @@ export default function LocationMap({ etablissement }: LocationMapProps) {
             <div className="flex items-start space-x-3">
               <Navigation className="h-5 w-5 text-green-600 mt-1" />
               <div className="flex-1">
-                <h4 className="font-medium text-gray-900 mb-3">Coordonnées GPS</h4>
+                <h4 className="font-medium text-gray-900 mb-3">
+                  Coordonnées GPS
+                </h4>
                 {isValidCoordinates ? (
                   <div className="space-y-3">
                     <div className="bg-gray-50 rounded-lg p-3">
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-sm text-gray-600">Latitude:</span>
-                        <span className="font-mono text-sm font-medium">{latitude.toFixed(6)}°</span>
+                        <span className="font-mono text-sm font-medium">
+                          {latitude.toFixed(6)}°
+                        </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Longitude:</span>
-                        <span className="font-mono text-sm font-medium">{longitude.toFixed(6)}°</span>
+                        <span className="text-sm text-gray-600">
+                          Longitude:
+                        </span>
+                        <span className="font-mono text-sm font-medium">
+                          {longitude.toFixed(6)}°
+                        </span>
                       </div>
                     </div>
-                    
+
                     {/* Actions de navigation */}
                     <div className="flex space-x-2">
                       {googleMapsUrl && (
@@ -117,7 +137,9 @@ export default function LocationMap({ etablissement }: LocationMapProps) {
                 ) : (
                   <div className="text-center py-4">
                     <Navigation className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-                    <p className="text-sm text-gray-500">Coordonnées GPS non disponibles</p>
+                    <p className="text-sm text-gray-500">
+                      Coordonnées GPS non disponibles
+                    </p>
                   </div>
                 )}
               </div>
@@ -125,8 +147,6 @@ export default function LocationMap({ etablissement }: LocationMapProps) {
           </div>
         </div>
       </Card>
-
-
     </div>
   );
 }

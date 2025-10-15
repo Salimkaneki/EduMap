@@ -1,0 +1,10 @@
+Code_etab,Nom_etab,Region,Prefecture,Canton_ou_village_autonome,Ville_village_quartier,Commune_etab,Latitude,Longitude,Libelle_type_milieu,Libelle_type_statut_etab,Libelle_type_systeme,Libelle_type_annee,Existe_elect,Existe_latrine,Existe_latrine_fonct,Acces_toute_saison,Eau,SommedenbEffG,SommedenbEffF,Tot,SommedenbEnsH,SommedenbEnsF,TotalEnse,SommedenbSallesClassesDur,SommedenbSallesClassesBanco,SommedenbSallesClassesAutre
+LOME001,EPP Centre Lomé,MARITIME,Golfe,Lomé Commune 1,Nyékonakpoè,Lomé,6.1319,1.2228,Urbain,Public,PRIMAIRE,2023-2024,oui,oui,oui,oui,oui,245,238,483,8,6,14,10,2,0
+LOME002,Collège d'Enseignement Général de Bè,MARITIME,Golfe,Lomé Commune 2,Bè-Klikamé,Lomé,6.1256,1.2345,Urbain,Public,SECONDAIRE I,2023-2024,oui,oui,oui,oui,oui,412,389,801,19,16,35,16,3,1
+LOME003,École Maternelle Les Coccinelles,MARITIME,Golfe,Lomé Commune 3,Tokoin,Lomé,6.1405,1.2489,Urbain,Privé Laïc,PRESCOLAIRE,2023-2024,oui,oui,oui,oui,oui,78,82,160,3,7,10,6,0,0
+LOME004,Lycée de Tokoin,MARITIME,Golfe,Lomé Commune 4,Tokoin-Hôpital,Lomé,6.1467,1.2534,Urbain,Public,SECONDAIRE II,2023-2024,oui,oui,oui,oui,oui,567,534,1101,28,24,52,24,1,2
+AFAG001,EPP Aného,MARITIME,Lacs,Aného,Centre Aného,Aného,6.2333,1.6000,Semi Urbain,Public,PRIMAIRE,2023-2024,oui,oui,oui,oui,non,198,204,402,8,6,14,9,4,1
+VOGA001,Collège de Vogan,MARITIME,Vo,Vogan,Vogan Centre,Vogan,6.3333,1.5333,Semi Urbain,Public,SECONDAIRE I,2023-2024,oui,oui,non,oui,oui,234,221,455,12,9,21,12,2,0
+TSEV001,EPP Tsévié Centre,MARITIME,Zio,Tsévié,Tsévié Centre,Tsévié,6.4333,1.2167,Urbain,Public,PRIMAIRE,2023-2024,oui,oui,oui,oui,oui,289,276,565,11,8,19,11,2,0
+KARA001,Collège Moderne de Kara,KARA,Kozah,Kara,Centre-ville,Kara,9.5509,1.1861,Urbain,Public,SECONDAIRE I,2023-2024,oui,oui,oui,oui,oui,356,312,668,15,12,27,18,0,1
+KARA002,EPP Kara Plateau,KARA,Kozah,Kara,Plateau,Kara,9.5567,1.1923,Urbain,Public,PRIMAIRE,2023-2024,oui,oui,oui,oui,oui,278,265,543,10,8,18,12,1,0

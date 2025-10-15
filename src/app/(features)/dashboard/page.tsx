@@ -1,11 +1,11 @@
-'use client'
+"use client";
 import React, { useState, useEffect } from "react";
-import { 
-  School, 
-  Map, 
-  Droplet, 
-  Users, 
-  BarChart3, 
+import {
+  School,
+  Map,
+  Droplet,
+  Users,
+  BarChart3,
   ChevronRight,
   Download,
   Plus,
@@ -17,28 +17,37 @@ import {
   Zap,
   Toilet,
   Route,
-  Home
+  Home,
 } from "lucide-react";
-import { getDashboardData, getEtablissementStats } from "./_services/dashboardService";
+import { useRouter } from "next/navigation";
+import {
+  getDashboardData,
+  getEtablissementStats,
+} from "./_services/dashboardService";
 import { DashboardResponse, EtablissementStats } from "./_models/types";
 
 export default function DashboardPage() {
-  const [dashboardData, setDashboardData] = useState<DashboardResponse | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardResponse | null>(
+    null
+  );
   const [statsData, setStatsData] = useState<EtablissementStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [dashboard, stats] = await Promise.all([
           getDashboardData(),
-          getEtablissementStats()
+          getEtablissementStats(),
         ]);
         setDashboardData(dashboard);
         setStatsData(stats);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
+        setError(
+          err instanceof Error ? err.message : "Failed to load dashboard data"
+        );
       } finally {
         setLoading(false);
       }
@@ -63,8 +72,8 @@ export default function DashboardPage() {
       <div className="min-h-screen bg-white p-6 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">Erreur: {error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
+          <button
+            onClick={() => window.location.reload()}
             className="px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800"
           >
             Réessayer
@@ -78,36 +87,44 @@ export default function DashboardPage() {
 
   // Calculate real stats from API data
   const realStats = [
-    { 
-      id: 1, 
-      label: "Établissements cartographiés", 
-      value: statsData.total_etablissements.toLocaleString(), 
-      icon: School, 
-      change: "100%"
+    {
+      id: 1,
+      label: "Établissements cartographiés",
+      value: statsData.total_etablissements.toLocaleString(),
+      icon: School,
+      change: "100%",
     },
-    { 
-      id: 2, 
-      label: "Établissements avec eau", 
-      value: statsData.equipements.avec_eau.toLocaleString(), 
-      icon: Droplet, 
-      change: `${Math.round((statsData.equipements.avec_eau / statsData.total_etablissements) * 100)}%`
+    {
+      id: 2,
+      label: "Établissements avec eau",
+      value: statsData.equipements.avec_eau.toLocaleString(),
+      icon: Droplet,
+      change: `${Math.round(
+        (statsData.equipements.avec_eau / statsData.total_etablissements) * 100
+      )}%`,
     },
-    { 
-      id: 3, 
-      label: "Établissements avec électricité", 
-      value: statsData.equipements.avec_electricite.toLocaleString(), 
-      icon: Zap, 
-      change: `${Math.round((statsData.equipements.avec_electricite / statsData.total_etablissements) * 100)}%`
+    {
+      id: 3,
+      label: "Établissements avec électricité",
+      value: statsData.equipements.avec_electricite.toLocaleString(),
+      icon: Zap,
+      change: `${Math.round(
+        (statsData.equipements.avec_electricite /
+          statsData.total_etablissements) *
+          100
+      )}%`,
     },
-    { 
-      id: 4, 
-      label: "Établissements avec latrines", 
-      value: statsData.equipements.avec_latrines.toLocaleString(), 
-      icon: Toilet, 
-      change: `${Math.round((statsData.equipements.avec_latrines / statsData.total_etablissements) * 100)}%`
+    {
+      id: 4,
+      label: "Établissements avec latrines",
+      value: statsData.equipements.avec_latrines.toLocaleString(),
+      icon: Toilet,
+      change: `${Math.round(
+        (statsData.equipements.avec_latrines / statsData.total_etablissements) *
+          100
+      )}%`,
     },
   ];
-
 
   return (
     <div className="min-h-screen bg-white p-6">
@@ -117,12 +134,14 @@ export default function DashboardPage() {
           <div>
             <h1 className="text-2xl font-medium text-gray-900">EduMap</h1>
             <p className="text-gray-500 text-sm mt-1">
-              Surveillance des données éducatives pour une allocation équitable des ressources.
+              Surveillance des données éducatives pour une allocation équitable
+              des ressources.
             </p>
             <div className="flex items-center mt-2">
               <User size={16} className="text-gray-400 mr-2" />
               <span className="text-sm text-gray-600">
-                Connecté en tant que {dashboardData.admin.name} ({dashboardData.admin.role})
+                Connecté en tant que {dashboardData.admin.name} (
+                {dashboardData.admin.role})
               </span>
             </div>
           </div>
@@ -131,7 +150,10 @@ export default function DashboardPage() {
               <Download size={16} />
               Exporter
             </button>
-            <button className="flex items-center gap-2 px-3 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition text-sm">
+            <button
+              onClick={() => router.push("/dashboard/school/register")}
+              className="flex items-center gap-2 px-3 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition text-sm"
+            >
               <Plus size={16} />
               Nouveau
             </button>
@@ -157,15 +179,15 @@ export default function DashboardPage() {
                 </span>
               </div>
               <div>
-                <p className="text-2xl font-light text-gray-900">{stat.value}</p>
+                <p className="text-2xl font-light text-gray-900">
+                  {stat.value}
+                </p>
                 <p className="text-xs text-gray-500 mt-1">{stat.label}</p>
               </div>
             </div>
           );
         })}
       </section>
-
-
     </div>
   );
 }

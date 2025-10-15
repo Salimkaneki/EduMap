@@ -26,6 +26,7 @@ import {
 } from "../../../etablissements/_model/etablissement";
 import { useRouter } from "next/navigation";
 import { deleteSchool } from "./_services/schoolService";
+import ImportModal from "./_components/ImportModal";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
@@ -51,6 +52,9 @@ export default function SchoolsListPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 10;
+
+  // Import modal state
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const [filterOptions, setFilterOptions] = useState<{
     regions: string[];
@@ -245,6 +249,11 @@ export default function SchoolsListPage() {
     }
   };
 
+  const handleImportComplete = async () => {
+    // Refresh the schools list after successful import
+    await fetchSchools();
+  };
+
   const SortIcon = ({ field }: { field: keyof Etablissement }) => {
     if (sortField !== field)
       return <ArrowUpDown size={14} className="ml-1 opacity-50" />;
@@ -312,9 +321,12 @@ export default function SchoolsListPage() {
             </p>
           </div>
           <div className="flex gap-2">
-            <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-gray-700 hover:bg-gray-200 transition text-sm">
+            <button
+              onClick={() => setIsImportModalOpen(true)}
+              className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-gray-700 hover:bg-gray-200 transition text-sm"
+            >
               <Download size={16} />
-              Exporter
+              Import
             </button>
             <button className="flex items-center gap-2 px-3 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition text-sm">
               <Plus size={16} />
@@ -747,6 +759,13 @@ export default function SchoolsListPage() {
           </div>
         </div>
       )}
+
+      {/* Import Modal */}
+      <ImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onImportComplete={handleImportComplete}
+      />
     </div>
   );
 }
