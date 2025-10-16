@@ -146,10 +146,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="flex gap-2">
-            <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-gray-700 hover:bg-gray-200 transition text-sm">
-              <Download size={16} />
-              Exporter
-            </button>
+
             <button
               onClick={() => router.push("/dashboard/school/register")}
               className="flex items-center gap-2 px-3 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition text-sm"

@@ -27,6 +27,8 @@ import {
 import { useRouter } from "next/navigation";
 import { deleteSchool } from "./_services/schoolService";
 import ImportModal from "./_components/ImportModal";
+import ExportModal from "./_components/ExportModal";
+import { ExportFilters } from "@/app/actions/schoolActions";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
@@ -55,6 +57,9 @@ export default function SchoolsListPage() {
 
   // Import modal state
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+
+  // Export modal state
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   const [filterOptions, setFilterOptions] = useState<{
     regions: string[];
@@ -322,13 +327,23 @@ export default function SchoolsListPage() {
           </div>
           <div className="flex gap-2">
             <button
+              onClick={() => setIsExportModalOpen(true)}
+              className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-gray-700 hover:bg-gray-200 transition text-sm"
+            >
+              <Download size={16} />
+              Exporter
+            </button>
+            <button
               onClick={() => setIsImportModalOpen(true)}
               className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-gray-700 hover:bg-gray-200 transition text-sm"
             >
               <Download size={16} />
-              Import
+              Importer
             </button>
-            <button className="flex items-center gap-2 px-3 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition text-sm">
+            <button
+              onClick={() => router.push("/dashboard/school/register")}
+              className="flex items-center gap-2 px-3 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition text-sm"
+            >
               <Plus size={16} />
               Nouveau
             </button>
@@ -765,6 +780,23 @@ export default function SchoolsListPage() {
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
         onImportComplete={handleImportComplete}
+      />
+
+      {/* Export Modal */}
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        currentFilters={{
+          region: regionFilter !== "Toutes" ? regionFilter : undefined,
+          prefecture:
+            prefectureFilter !== "Toutes" ? prefectureFilter : undefined,
+          libelle_type_milieu:
+            milieuFilter !== "Tous" ? milieuFilter : undefined,
+          libelle_type_statut_etab:
+            statusFilter !== "Tous" ? statusFilter : undefined,
+          libelle_type_systeme:
+            systemeFilter !== "Tous" ? systemeFilter : undefined,
+        }}
       />
     </div>
   );
